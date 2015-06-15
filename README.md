@@ -20,6 +20,8 @@ You can press other keys to toggle move behavior:
 	
  * Toggle Ctrl+| to add cursors to adjacent lines.
 	
+ * Toggle Ctrl+= to scroll.
+
  * Toggle Ctrl+^ to move the text around - left/right to indent/unindent, up/down to transpose.
 	
  * Toggle Ctrl+[ to fold/unfold text.
