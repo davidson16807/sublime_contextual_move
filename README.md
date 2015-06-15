@@ -1,7 +1,8 @@
 # Sublime Contexual Move Keys
 Ctrl+IJKL to move. Other keys toggle move behavior. You can move across characters, words, search results, tabs, and more.
 
-## The GistCtrl+ijkl are contextual arrow keys. By default, they move the cursor a character at a time. If you open the search panel, they'll move between search results. 
+## The Gist
+Ctrl+ijkl are contextual arrow keys. By default, they move the cursor one character at a time. If you open the search panel, they'll move between search results. 
 
 You can press other keys to toggle their behavior:
 
@@ -33,7 +34,7 @@ Other keys will modify their behavior after being pressed:
  Because this is not vim. The vast majority of users are already familiar with the "inverse T" style of navigation, thanks largely to WASD and the regular arrow keys.
  
 ###Why not use Vim?
- See above. This is a plugin meant for mortals.
+ See above. This is a plugin for mortals.
  
 ###Why not just extend behavior to the arrow keys?
  Because moving your hand interrupts your workflow. I want to keep both hands on the home row for as long as I can.
