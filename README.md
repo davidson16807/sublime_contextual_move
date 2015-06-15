@@ -2,13 +2,15 @@
 Ctrl+IJKL to move. Other keys toggle move behavior. You can move across characters, words, search results, tabs, and more.
 
 ## The Gist
-Ctrl+ijkl are contextual arrow keys. By default, they move the cursor one character at a time. If you open the search panel, they'll move between search results. 
+Ctrl+IJKL are contextual arrow keys. By default, they move the cursor one character at a time. Adding "Shift" will extend the selection. If you open the search panel, they'll move between search results. 
 
-You can press other keys to toggle their behavior:
+You can press other keys to toggle move behavior:
 
  * Toggle Ctrl+space to move a word at a time.
 	
  * Toggle Ctrl+_ to move by subwords.
+ 
+ * Toggle Ctrl+Enter to move to the beginning/end of the line or document. Subsequent keypresses to Ctrl+IJKL will return to the default behavior.
 	
  * Toggle Ctrl+tab to move between tabs. 
 	
@@ -18,11 +20,8 @@ You can press other keys to toggle their behavior:
 	
  * Toggle Ctrl+[ to fold/unfold text.
 	
-Other keys will modify their behavior after being pressed:
+Other keys will modify move behavior after being pressed. After pressing Ctrl+U, subsequent presses to Ctrl+IK will soft undo or soft redo. This does not change the existing Ctrl+U behavior.
 	
- * Press Ctrl+U and they'll soft undo or soft redo. This does not effect the existing Ctrl+U behavior.
-	
- * Press Ctrl+Enter and they'll move to the beginning/end of the line or document. Subsequent keypresses to Ctrl+IJKL will return them to their default behavior.
 
 
 ## FAQ
