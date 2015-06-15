@@ -1,4 +1,4 @@
-# sublime_contextual_move
+# Sublime Contexual Move Keys
 Ctrl+IJKL to move. Other keys toggle move behavior. You can move by characters, words, search results, history, and more.
 
 ## FAQ
