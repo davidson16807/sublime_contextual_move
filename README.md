@@ -41,7 +41,7 @@ Other keys will modify move behavior after being pressed. After pressing Ctrl+U,
 ###Why not use Vim?
  See above. This is a plugin for mortals.
  
-###Why not just extend behavior to the arrow keys?
+###Why not just extend behavior to the regular arrow keys?
  Because moving your hand interrupts your workflow. I want to keep both hands on the home row for as long as I can.
  
 ###You changed my favorite hotkey!
