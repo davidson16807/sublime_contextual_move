@@ -2,7 +2,7 @@
 Ctrl+IJKL to move. Other keys toggle move behavior. You can move across characters, words, search results, tabs, and more.
 
 ## The Gist
-Ctrl+IJKL are contextual arrow keys. By default, they move the cursor one character at a time. Adding "Shift" will extend the selection. If you open the search panel, they'll move between search results. 
+Ctrl+IJKL are contextual arrow keys. By default, they move the cursor one character at a time. Adding "Shift" will extend the selection. If you open the command palette, they'll move through options as would the regular arrow keys. If you open the search panel, they'll move between search results. 
 
 You can press other keys to toggle move behavior:
 
@@ -16,7 +16,7 @@ You can press other keys to toggle move behavior:
 	
  * Toggle Ctrl+| to add cursors to adjacent lines.
 	
- * Toggle Ctrl+] to move the text around - left/right to indent/unindent, up/down to transpose.
+ * Toggle Ctrl+^ to move the text around - left/right to indent/unindent, up/down to transpose.
 	
  * Toggle Ctrl+[ to fold/unfold text.
 	
