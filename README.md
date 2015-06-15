@@ -4,7 +4,7 @@
 ## The Gist
 `Ctrl+IJKL` are contextual arrow keys. By default, they move the cursor one character at a time. Adding "Shift" will extend the selection. 
 
-If you open the command palette or enter an autocomplete dropdown, they'll move through the options just like regular arrow keys. 
+If you open the command palette or an autocomplete dropdown, they'll move through the options just like regular arrow keys. 
 
 If you open the search panel, they'll move between search results. 
 
