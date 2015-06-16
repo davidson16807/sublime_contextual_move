@@ -32,6 +32,17 @@ Other keys will modify move behavior after being pressed. After pressing `Ctrl+U
 
 ## FAQ
 
+#Why?
+
+Plenty of reasons:
+ * Provide vim-like navigation without the steep learning curve
+
+ * Vastly expand a user's hotkey repertoire without taxing memory
+
+ * Eliminate the need to leave the home row when navigating through text
+
+ * Create an economy of hotkeys, freeing up keyboard real estate so users can create their own hotkeys
+
 ###Why not `Ctrl+WASD`?
  Because `Ctrl+S` and `Ctrl+A` are some of the most widely adopted hotkeys of all time and I don't plan to remap their behavior.
 
