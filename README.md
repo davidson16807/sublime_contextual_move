@@ -32,7 +32,7 @@ Other keys will modify move behavior after being pressed. After pressing `Ctrl+U
 
 ## FAQ
 
-#Why?
+###Why?
 
 Plenty of reasons:
  * Provide vim-like navigation without the steep learning curve
