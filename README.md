@@ -8,7 +8,7 @@ If you open the command palette or an autocomplete dropdown, they'll move throug
 
 If you open the search panel, they'll move between search results. 
 
-You can press other keys to toggle move behavior:
+You can press other keys to modify move behavior:
 
 Hotkey|Move Behavior|Mneumonic 
 ----------|----------|----------
