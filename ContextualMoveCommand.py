@@ -15,11 +15,11 @@ class ToggleMoveContextCommand(sublime_plugin.WindowCommand):
 		sublime.status_message('Context: ' + context.upper())
 
 class SetMoveContextCommand(sublime_plugin.WindowCommand):
-	def run(self, value, command, args={}):
+	def run(self, value, command=None, args={}):
 		settings = self.window.settings();
 		context = settings.get('move_context')
 		settings.set('move_context', value)
-		self.window.run_command(command, args)
+		if command:	self.window.run_command(command, args)
 		# print(context)
 		sublime.status_message('Context: ' + context.upper())
 
