@@ -3,9 +3,12 @@
 	//{ "keys": ["ctrl+space"], "command": "toggle_move_context", "args": {"value": "words"} },
 	//{ "keys": ["ctrl+shift+space"], "command": "toggle_move_context", "args": {"value": "words"} },
 
-	{ "keys": ["ctrl+,"], "command": "toggle_move_context", "args": {"value": "words"} },
-	{ "keys": ["ctrl+shift+,"], "command": "toggle_move_context", "args": {"value": "words"} },
+	{ "keys": ["ctrl+,"], "command": "set_move_context", "args": {"value": "words"} },
+	{ "keys": ["ctrl+shift+,"], "command": "set_move_context", "args": {"value": "words"} },
 
+	{ "keys": ["ctrl+."], "command": "set_move_context", "args": {"value": "default"} },
+	{ "keys": ["ctrl+shift+."], "command": "set_move_context", "args": {"value": "default"} },
+	
 	{ "keys": ["ctrl+="], "command": "toggle_move_context", "args": {"value": "scroll"} },
 	{ "keys": ["ctrl+shift+="], "command": "toggle_move_context", "args": {"value": "scroll"} },
 
