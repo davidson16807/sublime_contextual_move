@@ -10,11 +10,11 @@ If you open the search panel, they'll move between search results.
 
 You can press other keys to toggle move behavior:
 
- * Toggle `Ctrl+space` to move a word at a time.
+ * Toggle `Ctrl+,` to move a word at a time.
 	
  * Toggle `Ctrl+_` to move by subwords.
  
- * Toggle `Ctrl+Enter` to move to the beginning/end of the line or document. Subsequent keypresses to `Ctrl+IJKL` will return to the default behavior.
+ * Toggle `Ctrl+;` to move to the beginning/end of the line or document. Subsequent keypresses to `Ctrl+IJKL` will return to the default behavior.
 	
  * Toggle `Ctrl+tab` to move between tabs. 
 	
@@ -22,9 +22,11 @@ You can press other keys to toggle move behavior:
 	
  * Toggle `Ctrl+=` to scroll.
 
- * Toggle `Ctrl+^` to move the text around - left/right to indent/unindent, up/down to transpose.
+ * Toggle `Ctrl+^` to move the text around - left/right to transpose characters, up/down to transpose lines.
 	
  * Toggle `Ctrl+[` to fold/unfold text.
+ 
+ * Toggle `Ctrl+]` to indent/unindent and transpose by lines.
 	
 Other keys will modify move behavior after being pressed. After pressing `Ctrl+U`, subsequent presses to `Ctrl+IK` will soft undo or soft redo. This does not change the existing `Ctrl+U` behavior.
 	
