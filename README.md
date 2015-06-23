@@ -24,6 +24,7 @@ Hotkey|Move Behavior|Mneumonic
 `Ctrl+]`| indent/unindent and transpose by line | Resembles existing shortcut
 `Ctrl+f2`| move through bookmarks | Resembles existing shortcut
 `Ctrl+f6`| move through spelling errors | Resembles existing shortcut
+`Ctrl+U` | soft undo/soft redo. Does not interfere with the existing `Ctrl+U` behavior | Existing shortcut
 
 Other keys will modify move behavior after being pressed. After pressing `Ctrl+U`, subsequent presses to `Ctrl+IK` will soft undo or soft redo. This does not change the existing `Ctrl+U` behavior.
 	
