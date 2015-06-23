@@ -10,23 +10,18 @@ If you open the search panel, they'll move between search results.
 
 You can press other keys to toggle move behavior:
 
- * Toggle `Ctrl+,` to move a word at a time.
-	
- * Toggle `Ctrl+_` to move by subwords.
- 
- * Toggle `Ctrl+;` to move to the beginning/end of the line or document. Subsequent keypresses to `Ctrl+IJKL` will return to the default behavior.
-	
- * Toggle `Ctrl+tab` to move between tabs. 
-	
- * Toggle `Ctrl+|` to add cursors to adjacent lines.
-	
- * Toggle `Ctrl+=` to scroll.
-
- * Toggle `Ctrl+^` to move the text around - left/right to transpose characters, up/down to transpose lines.
-	
- * Toggle `Ctrl+[` to fold/unfold text.
- 
- * Toggle `Ctrl+]` to indent/unindent and transpose by lines.
+Hotkey|Move Behavior|Mneumonic 
+----------|----------|----------
+`Ctrl+.`| Move one character at a time | `.` denotes characters in regex
+`Ctrl+_`| Move by subwords | `_` delimits subwords in C-style languages
+`Ctrl+,`| Move by words | `,` delimits words in natural languages (`Ctrl+spacebar` is already put to good use)
+`Ctrl+;`| Move to the beginning/end of the line or document. Subsequent keypresses to `Ctrl+IJKL` will return to the default behavior | `;` delimits lines in most C-style languages (`Ctrl+enter` is already put to good use)
+`Ctrl+tab`| Move between tabs | Resembles existing shortcut
+`Ctrl++`| Scroll | looks like the cursor you get when you click the middle mouse button
+`Ctrl+|`| Add cursors to adjacent lines | `|` looks like a cursor
+`Ctrl+^`| Move text around | Same shortcut used in TextMate
+`Ctrl+[`| fold/unfold | Resembles existing shortcut
+`Ctrl+]`| indent/unindent and transpose by line | Resembles existing shortcut
 	
 Other keys will modify move behavior after being pressed. After pressing `Ctrl+U`, subsequent presses to `Ctrl+IK` will soft undo or soft redo. This does not change the existing `Ctrl+U` behavior.
 	
