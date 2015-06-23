@@ -15,7 +15,7 @@ Hotkey|Move Behavior|Mneumonic
 `Ctrl+.`| Move one character at a time | `.` denotes characters in regex
 `Ctrl+_`| Move by subwords | `_` delimits subwords in C-style languages
 `Ctrl+,`| Move by words | `,` delimits words in natural languages (`Ctrl+spacebar` is already taken)
-`Ctrl+;`| Move to the beginning/end of the line or document. Subsequent keypresses to `Ctrl+IJKL` will return to the default behavior | `;` delimits lines in most C-style languages (`Ctrl+enter` is already taken)
+`Ctrl+;`| Move to the beginning/end of the line/document. Subsequent keypresses to `Ctrl+IJKL` will return to the default behavior | `;` delimits lines in most C-style languages (`Ctrl+enter` is already taken)
 `Ctrl+tab`| Move between tabs | Resembles existing shortcut
 `Ctrl++`| Scroll | looks like the cursor you get when you click the middle mouse button
 `Ctrl+|`| Add cursors to adjacent lines | `|` looks like a cursor
