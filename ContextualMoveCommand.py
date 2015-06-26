@@ -23,6 +23,13 @@ class SetMoveContextCommand(sublime_plugin.WindowCommand):
 		# print(context)
 		sublime.status_message('Context: ' + context.upper())
 
+class SetRepContextCommand(sublime_plugin.WindowCommand):
+	def run(self, value):
+		settings = self.window.settings();
+		context = settings.get('move_context_rep')
+		settings.set('move_context_rep', value)
+		# sublime.status_message('Context: ' + context.upper())
+
 class DoOnceMoveContextCommand(sublime_plugin.WindowCommand):
 	def run(self, value):
 		settings = self.window.settings();
@@ -34,14 +41,17 @@ class ContextualMoveCommand(sublime_plugin.WindowCommand):
 		settings = self.window.settings();
 		context = settings.get('move_context');
 		do_once = settings.get('move_context_do_once')
+		rep = settings.get('move_context_rep');
 		
 		context = context if context in commands else 'default'
+		rep = rep if rep else 1
 		
 		if context in commands:
-			command = commands[context]
-			args = command['args'] if 'args' in command else {}
-			self.window.run_command(command['command'], args)
-			print(command)
+			for i in range(0,rep):
+				command = commands[context]
+				args = command['args'] if 'args' in command else {}
+				self.window.run_command(command['command'], args)
+				print(command)
 
 		if do_once:
 			settings.set('move_context_do_once', False)
