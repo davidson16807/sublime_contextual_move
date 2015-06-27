@@ -1,5 +1,11 @@
 
 [
+	{ "keys": ["ctrl+1"], "command": "set_rep_context", "args": {"value": 1} },
+	{ "keys": ["ctrl+2"], "command": "set_rep_context", "args": {"value": 2} },
+	{ "keys": ["ctrl+3"], "command": "set_rep_context", "args": {"value": 3} },
+	{ "keys": ["ctrl+4"], "command": "set_rep_context", "args": {"value": 4} },
+	{ "keys": ["ctrl+5"], "command": "set_rep_context", "args": {"value": 5} },
+
 	//{ "keys": ["ctrl+space"], "command": "toggle_move_context", "args": {"value": "words"} },
 	//{ "keys": ["ctrl+shift+space"], "command": "toggle_move_context", "args": {"value": "words"} },
 
@@ -233,5 +239,20 @@
 			"default": { "command": "delete_word", "args": {"forward": false} },
 			"lines": {"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Line.sublime-macro"} },
 		},
+	},
+
+	{ "keys": ["ctrl+a"], "command": "find_all",
+		"context":
+		[
+			{ "key": "panel", "operand": "find" },
+			{ "key": "panel_has_focus", "operand": true },
+			{ "key": "panel_visible", "operand": true }
+		]
+	},
+
+	{ "keys": ["escape"], "command": "move", "args": {"by": "characters", "forward": false},  "context":
+		[
+			{ "key": "selection_empty", "operator": "not_equal", "operand": true, "match_all": true },
+		]
 	},
 ]
