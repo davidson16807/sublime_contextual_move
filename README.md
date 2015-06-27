@@ -25,8 +25,6 @@ Hotkey|Move Behavior|Mneumonic
 `Ctrl+f2`| move through bookmarks | Resembles existing shortcut
 `Ctrl+f6`| move through spelling errors | Resembles existing shortcut
 `Ctrl+U` | soft undo/soft redo. Does not interfere with the existing `Ctrl+U` behavior | Existing shortcut
-
-Other keys will modify move behavior after being pressed. After pressing `Ctrl+U`, subsequent presses to `Ctrl+IK` will soft undo or soft redo. This does not change the existing `Ctrl+U` behavior.
 	
 
 
@@ -35,6 +33,7 @@ Other keys will modify move behavior after being pressed. After pressing `Ctrl+U
 ###Why?
 
 Plenty of reasons:
+ 
  * Provide vim-like navigation without the steep learning curve
 
  * Vastly expand a user's hotkey repertoire without taxing memory
