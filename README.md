@@ -15,16 +15,17 @@ Hotkey|Move Behavior|Mneumonic
 `Ctrl+.`| Move one character at a time | `.` denotes characters in regex
 `Ctrl+_`| Move by subwords | `_` delimits subwords in C-like languages
 `Ctrl+,`| Move by words | `,` delimits words in natural language (`Ctrl+spacebar` is already taken)
-`Ctrl+;`| Move to the beginning/end of the line/document. Subsequent keypresses to `Ctrl+IJKL` will return to the default behavior | `;` delimits lines in C-like languages (`Ctrl+enter` is already taken)
+`Ctrl+;`| Move to the beginning/end of the line/document. Subsequent keypresses to `Ctrl+IJKL` will return to default behavior | `;` delimits lines in C-like languages (`Ctrl+enter` is already taken)
 `Ctrl+tab`| Move between tabs | Resembles existing shortcut
 `Ctrl++`| Scroll | `+` looks like the cursor you get when you click the middle mouse button
-`Ctrl+|`| Add cursors to adjacent lines | `|` looks like a cursor
+`Ctrl+|`| Add cursors to adjacent lines. Press escape to return to a single selection and retrn to default behavior | The "pipe" character `|` looks like a cursor
 `Ctrl+^`| Move text around | Same shortcut used in TextMate
 `Ctrl+[`| fold/unfold | Resembles existing shortcut
 `Ctrl+]`| indent/unindent and transpose by line | Resembles existing shortcut
 `Ctrl+f2`| move through bookmarks | Resembles existing shortcut
 `Ctrl+f6`| move through spelling errors | Resembles existing shortcut
 `Ctrl+U` | soft undo/soft redo. Does not interfere with the existing `Ctrl+U` behavior | Existing shortcut
+`Ctrl+[1-5]`| perform the action `N` number of times, where `N` is the button you pressed | Similar shortcut used in Vim
 	
 
 
