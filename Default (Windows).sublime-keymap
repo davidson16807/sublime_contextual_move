@@ -49,6 +49,8 @@
 	// nonindepotent contents - use sparingly
 	{ "keys": ["ctrl+]"], "command": "toggle_move_context", "args": {"value": "indents"} },
 
+	{ "keys": ["ctrl+6"], "command": "toggle_move_context", "args": {"value": "move_text"} },
+
 	{ "keys": ["ctrl+enter"], "command": "do_once_move_context", "args": {"value": "line_insert"} },
 
 	//{ "keys": ["ctrl+u"], "command": "set_move_context", "args": 
@@ -82,6 +84,7 @@
 			"lines": { "command": "move_to", "args": {"to": "bol", "extend": false} },
 			"delete": { "command": "left_delete"},
 			"indents": { "command": "unindent", },
+			"move_text": { "command": "move_text_left", },
 			"scroll": { "command": "show_at_center", },
 			"tabs": { "command": "prev_view", },
 			"fold": { "command": "fold", },
@@ -114,6 +117,7 @@
 			"lines": { "command": "move_to", "args": {"to": "eol", "extend": false} },
 			"delete": { "command": "right_delete"},
 			"indents": { "command": "indent", },
+			"move_text": { "command": "move_text_right", },
 			"scroll": { "command": "show_at_center", },
 			"tabs": { "command": "next_view", },
 			"fold": { "command": "unfold", },
@@ -146,6 +150,7 @@
 			"delete": {"command": "run_macro_file", "args": {"file": "res://Packages/ContextualMove/Delete Line Before.sublime-macro"} },
 			"history": { "command": "soft_undo" },
 			"indents": { "command": "swap_line_up", },
+			"move_text": { "command": "swap_line_up", },
 			"scroll": 	{ "command": "scroll_lines", "args": {"amount": 3.0 } },
 			// "find": { "command": "find_prev" },
 			"find_under_expand": { "command": "soft_undo" },
@@ -192,6 +197,7 @@
 			// "find": { "command": "find_under_expand_skip" },
 			"find_under_expand": { "command": "find_under_expand_skip" },
 			"indents": { "command": "swap_line_down", },
+			"move_text": { "command": "swap_line_down", },
 			"cursor": { "command": "select_lines", "args": {"forward": true} },
 			"misspellings": { "command": "next_misspelling", },
 			"bookmarks": { "command": "next_bookmark", },
@@ -231,12 +237,9 @@
 	},
 
 	// miscellaneous contextual commands
-	{ "keys": ["ctrl+backspace"], "command": "contextual_move", 
-		"args": {
-			"default": { "command": "delete_word", "args": {"forward": false} },
-			"lines": {"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Line.sublime-macro"} },
-		},
-	},
+	{ "keys": ["ctrl+'"], "command": "set_mark" },
+	{ "keys": ["ctrl+shift+'"], "command": "select_to_mark" },
+	{ "keys": ["ctrl+alt+'"], "command": "delete_to_mark" },
 
 	{ "keys": ["ctrl+a"], "command": "find_all",
 		"context":
