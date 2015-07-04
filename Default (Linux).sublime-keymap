@@ -1,47 +1,39 @@
 
 [
+	// repetition contexts
 	{ "keys": ["ctrl+1"], "command": "set_rep_context", "args": {"value": 1} },
 	{ "keys": ["ctrl+2"], "command": "set_rep_context", "args": {"value": 2} },
 	{ "keys": ["ctrl+3"], "command": "set_rep_context", "args": {"value": 3} },
 	{ "keys": ["ctrl+4"], "command": "set_rep_context", "args": {"value": 4} },
 	{ "keys": ["ctrl+5"], "command": "set_rep_context", "args": {"value": 5} },
 
-	//{ "keys": ["ctrl+space"], "command": "toggle_move_context", "args": {"value": "words"} },
-	//{ "keys": ["ctrl+shift+space"], "command": "toggle_move_context", "args": {"value": "words"} },
+	// { "keys": ["ctrl+space"], "command": "toggle_move_context", "args": {"value": "words"} },
+	// { "keys": ["ctrl+shift+space"], "command": "toggle_move_context", "args": {"value": "words"} },
 
+	// navigation contexts
 	{ "keys": ["ctrl+,"], "command": "set_move_context", "args": {"value": "words"} },
+	{ "keys": ["ctrl+alt+,"], "command": "set_move_context", "args": {"value": "words"} },
 	{ "keys": ["ctrl+shift+,"], "command": "set_move_context", "args": {"value": "words"} },
 
 	{ "keys": ["ctrl+."], "command": "set_move_context", "args": {"value": "default"} },
+	{ "keys": ["ctrl+alt+."], "command": "set_move_context", "args": {"value": "default"} },
 	{ "keys": ["ctrl+shift+."], "command": "set_move_context", "args": {"value": "default"} },
-	
-	{ "keys": ["ctrl+="], "command": "toggle_move_context", "args": {"value": "scroll"} },
-	{ "keys": ["ctrl+shift+="], "command": "toggle_move_context", "args": {"value": "scroll"} },
 
 	{ "keys": ["ctrl+-"], "command": "toggle_move_context", "args": {"value": "subwords"} },
+	{ "keys": ["ctrl+alt+-"], "command": "toggle_move_context", "args": {"value": "subwords"} },
 	{ "keys": ["ctrl+shift+-"], "command": "toggle_move_context", "args": {"value": "subwords"} },
 
 	{ "keys": ["ctrl+;"], "command": "do_once_move_context", "args": {"value": "lines"} },
+	{ "keys": ["ctrl+alt+;"], "command": "do_once_move_context", "args": {"value": "lines"} },
 	{ "keys": ["ctrl+shift+;"], "command": "do_once_move_context", "args": {"value": "lines"} },
-
-	{ "keys": ["ctrl+enter"], "command": "do_once_move_context", "args": {"value": "line_insert"} },
-
-	{ "keys": ["ctrl+shift+backspace"], "command": "set_move_context", "args": {"value": "delete"} },
+	
+	{ "keys": ["ctrl+="], "command": "toggle_move_context", "args": {"value": "scroll"} },
 
 	{ "keys": ["ctrl+tab"], "command": "toggle_move_context", "args": {"value": "tabs"} },
-
-	{ "keys": ["ctrl+]"], "command": "toggle_move_context", "args": {"value": "indents"} },
-	{ "keys": ["ctrl+shift+]"], "command": "toggle_move_context", "args": {"value": "indents"} },
-
-	{ "keys": ["ctrl+shift+\\"], "command": "toggle_move_context", "args": {"value": "cursor"} },
 
 	{ "keys": ["ctrl+f6"], "command": "toggle_move_context", "args": {"value": "misspellings"} },
 
 	{ "keys": ["f2"], "command": "toggle_move_context", "args": {"value": "bookmarks"} },
-
-	{ "keys": ["ctrl+["], "command": "toggle_move_context", "args": {"value": "fold"} },
-
-	{ "keys": ["ctrl+shift+["], "command": "toggle_move_context", "args": {"value": "fold"} },
 
 	{ "keys": ["ctrl+\\"], "command": "toggle_move_context", "args": {"value": "cursor"} },
 	{ "keys": ["ctrl+\\"], "command": "split_selection_into_lines", 
@@ -52,26 +44,26 @@
 		]
 	},
 
-	{ "keys": ["ctrl+u"], "command": "set_move_context", "args": 
-		{
-			"value": "history",
-			"command": "soft_undo"
-		} 
-	},
-	{ "keys": ["ctrl+shift+u"], "command": "set_move_context", "args": 
-		{
-			"value": "history",
-			"command": "soft_redo"
-		},
-	},
+	{ "keys": ["ctrl+["], "command": "set_move_context", "args": {"value": "fold"} },
 
-	{ "keys": ["ctrl+f"], "command": "set_move_context", "args": 
-		{
-			"value": "find",
-			"command": "show_panel", 
-			"args": {"panel": "find", "reverse": false},
-		} 
-	},
+	// nonindepotent contents - use sparingly
+	{ "keys": ["ctrl+]"], "command": "toggle_move_context", "args": {"value": "indents"} },
+
+	{ "keys": ["ctrl+enter"], "command": "do_once_move_context", "args": {"value": "line_insert"} },
+
+	//{ "keys": ["ctrl+u"], "command": "set_move_context", "args": 
+	//	{
+	//		"value": "history",
+	//		"command": "soft_undo"
+	//	} 
+	//},
+	//{ "keys": ["ctrl+shift+u"], "command": "set_move_context", "args": 
+	//	{
+	//		"value": "history",
+	//		"command": "soft_redo"
+	//	},
+	//},
+
 	{ "keys": ["ctrl+f"], "command": "hide_panel", "args": {"cancel": true},
 		"context":
 		[
@@ -80,31 +72,6 @@
 			{ "key": "panel", "operand": "find"},
 		]
 	},
-
-	{ "keys": ["ctrl+r"], "command": "toggle_regex",
-		"context":
-		[
-			{ "key": "panel_visible", "operand": true },
-			{ "key": "panel_has_focus", "operand": true },
-			{ "key": "panel", "operand": "find"},
-		]
-	},
-	{ "keys": ["ctrl+'"], "command": "toggle_whole_word",
-		"context":
-		[
-			{ "key": "panel_visible", "operand": true },
-			{ "key": "panel_has_focus", "operand": true },
-			{ "key": "panel", "operand": "find"},
-		]
-	},
-	
-	// { "keys": ["ctrl+d"], "command": "set_move_context", "args": 
-		// {
-			// "value": "find_under_expand",
-			// "command": "find_under_expand", 
-			// "args": {"panel": "find", "reverse": false},
-		// },
-	// },
 
 	// left
 	{ "keys": ["ctrl+j"], "command": "contextual_move", 
@@ -129,6 +96,14 @@
 			"tabs": { "command": "prev_view", },
 		},
 	},
+	{ "keys": ["ctrl+alt+j"], "command": "contextual_move",
+		"args": {
+			"default": { "command": "left_delete" },
+			"words": { "command": "delete_word", "args": { "forward": false} },
+			"subwords": { "command": "run_macro_file", "args": {"file": "res://Packages/ContextualMove/Delete Subword Before.sublime-macro"} },
+			"lines": { "command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete to Hard BOL.sublime-macro"} },
+		}	
+	},
 
 	// right
 	{ "keys": ["ctrl+l"], "command": "contextual_move", 
@@ -152,6 +127,14 @@
 			"lines": { "command": "move_to", "args": {"to": "eol", "extend": true} },
 			"tabs": { "command": "next_view", },
 		},
+	},
+	{ "keys": ["ctrl+alt+l"], "command": "contextual_move",
+		"args": {
+			"default": { "command": "right_delete" },
+			"words": { "command": "delete_word", "args": { "forward": true} },
+			"subwords": { "command": "run_macro_file", "args": {"file": "res://Packages/ContextualMove/Delete Subword.sublime-macro"} },
+			"lines": { "command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete to Hard EOL.sublime-macro"} },
+		}	
 	},
 
 	// up
@@ -189,6 +172,12 @@
 			"lines": 	{ "command": "move", "args": {"by": "wholelines", "forward": false} },
 			"indents": 	{ "command": "move", "args": {"by": "wholelines", "forward": false} },
 		},
+	},
+	{ "keys": ["ctrl+alt+i"], "command": "contextual_move",
+		"args": {
+			"default": {"command": "run_macro_file", "args": {"file": "res://Packages/ContextualMove/Delete Line Before.sublime-macro"} },
+			"lines": { "command": "run_macro_file", "args": {"file": "res://Packages/ContextualMove/Delete to BOF.sublime-macro"} },
+		}	
 	},
 
 	// down
@@ -234,16 +223,14 @@
 			{ "key": "panel_visible", "operand": true }
 		]
 	},
-	{ "keys": ["ctrl+shift+s"], "command": "find_under_expand",
-		"context":
-		[
-			{ "key": "panel", "operand": "find" },
-			{ "key": "panel_has_focus", "operand": true },
-			{ "key": "panel_visible", "operand": true }
-		]
+	{ "keys": ["ctrl+alt+k"], "command": "contextual_move",
+		"args": {
+			"default": {"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Line.sublime-macro"} },
+			"lines": { "command": "run_macro_file", "args": {"file": "res://Packages/ContextualMove/Delete to EOF.sublime-macro"} },
+		}	
 	},
 
-
+	// miscellaneous contextual commands
 	{ "keys": ["ctrl+backspace"], "command": "contextual_move", 
 		"args": {
 			"default": { "command": "delete_word", "args": {"forward": false} },
