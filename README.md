@@ -2,7 +2,7 @@
 `Ctrl+IJKL` to move. Other keys toggle move behavior. You can move across characters, words, search results, tabs, and more.
 
 ## The Gist
-`Ctrl+IJKL` are contextual arrow keys. By default, they move the cursor one character at a time. Adding "Shift" will extend the selection. 
+`Ctrl+IJKL` are contextual arrow keys. By default, they move the cursor one character. "Ctrl+shift+IJKL" will extend the selection. "Ctrl+alt+IJKL" will delete.
 
 If you open the command palette or an autocomplete dropdown, they'll move through the options just like regular arrow keys. 
 
@@ -24,10 +24,8 @@ Hotkey|Move Behavior|Mneumonic
 `Ctrl+]`| indent/unindent and transpose by line | Resembles existing shortcut
 `Ctrl+f2`| move through bookmarks | Resembles existing shortcut
 `Ctrl+f6`| move through spelling errors | Resembles existing shortcut
-`Ctrl+U` | soft undo/soft redo. Does not interfere with the existing `Ctrl+U` behavior | Existing shortcut
+<!-- `Ctrl+U` | soft undo/soft redo. Does not interfere with the existing `Ctrl+U` behavior | Existing shortcut -->
 `Ctrl+[1-5]`| perform the action `N` number of times, where `N` is the button you pressed | Similar shortcut used in Vim
-	
-
 
 ## FAQ
 
