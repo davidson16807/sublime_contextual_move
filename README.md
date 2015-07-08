@@ -2,7 +2,7 @@
 `Ctrl+IJKL` to move. Other keys toggle move behavior. You can move across characters, words, search results, tabs, and more.
 
 ## The Gist
-`Ctrl+IJKL` are contextual arrow keys. By default, they move the cursor one character. "Ctrl+shift+IJKL" will extend the selection. "Ctrl+alt+IJKL" will delete.
+`Ctrl+IJKL` are contextual arrow keys. By default, they move the cursor one character at a time. `Ctrl+Shift+IJKL` will extend the selection. `Ctrl+Alt+IJKL` will delete.
 
 If you open the command palette or an autocomplete dropdown, they'll move through the options just like regular arrow keys. 
 
