@@ -11,6 +11,7 @@ class ToggleMoveContextCommand(sublime_plugin.WindowCommand):
 				context = 'default'
 			
 			settings.set('move_context', context)
+			settings.set('move_context_rep', 1)
 		# print(context)
 		sublime.status_message('Context: ' + context.upper())
 
@@ -19,6 +20,7 @@ class SetMoveContextCommand(sublime_plugin.WindowCommand):
 		settings = self.window.settings();
 		context = settings.get('move_context')
 		settings.set('move_context', value)
+		settings.set('move_context_rep', 1)
 		if command:	self.window.run_command(command, args)
 		# print(context)
 		sublime.status_message('Context: ' + context.upper())
@@ -35,6 +37,7 @@ class DoOnceMoveContextCommand(sublime_plugin.WindowCommand):
 		settings = self.window.settings();
 		settings.set('move_context', value)
 		settings.set('move_context_do_once', True)
+		settings.set('move_context_rep', 1)
 
 class ContextualMoveCommand(sublime_plugin.WindowCommand):
 	def run(self, **commands):
