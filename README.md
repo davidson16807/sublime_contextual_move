@@ -18,7 +18,7 @@ Hotkey|Move Behavior|Mneumonic
 `Ctrl+;`| Move to the beginning/end of the line/document. Subsequent keypresses to `Ctrl+IJKL` will return to default behavior | `;` delimits lines in C-like languages (`Ctrl+enter` is already taken)
 `Ctrl+tab`| Move between tabs | Resembles existing shortcut
 `Ctrl++`| Scroll | `+` looks like the cursor you get when you click the middle mouse button
-`Ctrl+\|`| Add cursors to adjacent lines. Press escape to return to a single selection and retrn to default behavior | The "pipe" character `\|` looks like a cursor
+`Ctrl+pipe`| Add cursors to adjacent lines. Press escape to return to a single selection and retrn to default behavior | The "pipe" character looks like a cursor
 `Ctrl+^`| Move text around | Same shortcut used in TextMate
 `Ctrl+[`| fold/unfold | Resembles existing shortcut
 `Ctrl+]`| indent/unindent and transpose by line | Resembles existing shortcut
