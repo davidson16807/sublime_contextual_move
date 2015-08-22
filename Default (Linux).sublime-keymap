@@ -107,6 +107,11 @@
 			"lines": { "command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete to Hard BOL.sublime-macro"} },
 		}	
 	},
+	{ "keys": ["alt+j"], "command": "contextual_move",
+		"args": {
+			"default": { "command": "soft_undo" },
+		}	
+	},
 
 	// right
 	{ "keys": ["ctrl+l"], "command": "contextual_move", 
@@ -138,6 +143,11 @@
 			"words": { "command": "delete_word", "args": { "forward": true} },
 			"subwords": { "command": "run_macro_file", "args": {"file": "res://Packages/ContextualMove/Delete Subword.sublime-macro"} },
 			"lines": { "command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete to Hard EOL.sublime-macro"} },
+		}	
+	},
+	{ "keys": ["alt+l"], "command": "contextual_move",
+		"args": {
+			"default": { "command": "soft_redo" },
 		}	
 	},
 
