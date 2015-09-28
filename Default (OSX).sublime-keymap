@@ -235,6 +235,18 @@
 			"lines": { "command": "run_macro_file", "args": {"file": "res://Packages/ContextualMove/Delete to EOF.sublime-macro"} },
 		}	
 	},
+	
+	// alt: search history
+	{ "keys": ["alt+l"], "command": "contextual_move",
+		"args": {
+			"default": {"command": "soft_redo"},
+		}
+	},
+	{ "keys": ["alt+j"], "command": "contextual_move",
+		"args": {
+			"default": {"command": "soft_undo"},
+		}
+	},
 
 	// miscellaneous contextual commands
 	{ "keys": ["ctrl+'"], "command": "set_mark" },
