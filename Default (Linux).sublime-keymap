@@ -240,11 +240,15 @@
 	{ "keys": ["alt+l"], "command": "contextual_move",
 		"args": {
 			"default": {"command": "soft_redo"},
+			"subwords": {"command": "redo"},
+			"words": {"command": "redo"},
 		}
 	},
 	{ "keys": ["alt+j"], "command": "contextual_move",
 		"args": {
 			"default": {"command": "soft_undo"},
+			"subwords": {"command": "undo"},
+			"words": {"command": "undo"},
 		}
 	},
 
