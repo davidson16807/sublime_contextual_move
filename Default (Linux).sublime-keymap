@@ -12,18 +12,22 @@
 
 	// navigation contexts
 	{ "keys": ["ctrl+,"], "command": "set_move_context", "args": {"value": "words"} },
+	{ "keys": ["alt+,"], "command": "set_move_context", "args": {"value": "words"} },
 	{ "keys": ["ctrl+alt+,"], "command": "set_move_context", "args": {"value": "words"} },
 	{ "keys": ["ctrl+shift+,"], "command": "set_move_context", "args": {"value": "words"} },
 
 	{ "keys": ["ctrl+."], "command": "set_move_context", "args": {"value": "default"} },
+	{ "keys": ["alt+."], "command": "set_move_context", "args": {"value": "default"} },
 	{ "keys": ["ctrl+alt+."], "command": "set_move_context", "args": {"value": "default"} },
 	{ "keys": ["ctrl+shift+."], "command": "set_move_context", "args": {"value": "default"} },
 
 	{ "keys": ["ctrl+-"], "command": "set_move_context", "args": {"value": "subwords"} },
+	{ "keys": ["alt+-"], "command": "set_move_context", "args": {"value": "subwords"} },
 	{ "keys": ["ctrl+alt+-"], "command": "set_move_context", "args": {"value": "subwords"} },
 	{ "keys": ["ctrl+shift+-"], "command": "set_move_context", "args": {"value": "subwords"} },
 
 	{ "keys": ["ctrl+;"], "command": "do_once_move_context", "args": {"value": "lines"} },
+	{ "keys": ["alt+;"], "command": "do_once_move_context", "args": {"value": "lines"} },
 	{ "keys": ["ctrl+alt+;"], "command": "do_once_move_context", "args": {"value": "lines"} },
 	{ "keys": ["ctrl+shift+;"], "command": "do_once_move_context", "args": {"value": "lines"} },
 	
