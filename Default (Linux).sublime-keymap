@@ -174,7 +174,6 @@
 			// "find": 	{ "command": "find_prev" },
 			"find_under_expand": 	{ "command": "soft_undo" },
 			"lines": { "command": "move_to", "args": {"to": "bof", "extend": true} },
-			"lines": 	{ "command": "move", "args": {"by": "wholelines", "forward": false} },
 			"indents": 	{ "command": "move", "args": {"by": "wholelines", "forward": false} },
 		},
 	},
