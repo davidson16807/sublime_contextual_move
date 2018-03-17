@@ -29,7 +29,7 @@
 	
 	{ "keys": ["ctrl+="], "command": "toggle_move_context", "args": {"value": "scroll"} },
 
-	{ "keys": ["ctrl+tab"], "command": "toggle_move_context", "args": {"value": "tabs"} },
+	{ "keys": ["ctrl+t"], "command": "toggle_move_context", "args": {"value": "tabs"} },
 
 	{ "keys": ["ctrl+f6"], "command": "toggle_move_context", "args": {"value": "misspellings"} },
 
