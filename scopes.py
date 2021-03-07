@@ -12,19 +12,138 @@ except ValueError: # HACK: for ST2 compatability
     from viewtools import *
 
 class MoveByFunctionCommand(sublime_plugin.TextCommand):
-    def run(self, edit, forward):
-        # TODO: jump by selectors in css/less/...
+    def run(self, edit, forward, expand = False, complete = False, delete = False):
         regions = list_defs(self.view) or list_blocks(self.view)
-        map_selection(self.view, partial(smart_down if forward else smart_up, regions))
+        if expand or delete:
+            map_selection(self.view, partial(smart_down_complete if complete and forward else smart_up_complete if complete else smart_down_expand if forward else smart_up_expand, regions))
+        else:
+            map_selection(self.view, partial(smart_down if forward else smart_up, regions))
+        if delete:
+            self.view.run_command('left_delete')
+
+class TransposeByCommand(sublime_plugin.TextCommand):
+    def run(self, edit, forward, by):
+        if by == 'functions':
+            regions = list_defs(self.view) or list_blocks(self.view)
+            up = partial(smart_up, regions)
+            down = partial(smart_down, regions)
+        else:
+            up = {
+                'characters': partial(char_up, self.view),
+                'subwords': partial(sub_word_up, self.view),
+                'words': partial(word_up, self.view),
+            }[by]
+            down = {
+                'characters': partial(char_down, self.view),
+                'subwords': partial(sub_word_down, self.view),
+                'words': partial(word_down, self.view),
+            }[by]
+            map_selection(self.view, partial(complete_if_unselected, up, down))
+        transpose_selection(self.view, edit, forward, up, down)
+
+def transpose_selection(view, edit, forward, up, down):
+    old_selections = view.sel()
+    replacements = []
+    for source in old_selections:
+        if forward:  
+            destination = sublime.Region(source.end(), down(source))
+            top = view.substr(source) 
+            bottom = view.substr(destination)
+            offset = destination.size()
+        else:
+            destination = sublime.Region(source.begin(), up(source)) 
+            top = view.substr(destination) 
+            bottom = view.substr(source)
+            offset = -destination.size()
+        replacements.append((source.cover(destination), bottom+top, sublime.Region(source.a + offset, source.b + offset)))
+    view.sel().clear()
+    for region, text, selection in replacements:
+        view.replace(edit, region, text)
+    view.sel().add_all([selection for region, text, selection in replacements])
+    view.show(view.sel())
+
+
+def char_up(view, current):
+    return current.begin()-1
+
+def char_down(view, current):
+    return current.end()+1
+
+def sub_word_up(view, current):
+    return view.find_by_class(current.begin()-1, False, 
+        sublime.CLASS_SUB_WORD_START | 
+        sublime.CLASS_SUB_WORD_END | 
+        sublime.CLASS_PUNCTUATION_START | 
+        sublime.CLASS_PUNCTUATION_END | 
+        # sublime.CLASS_LINE_START | 
+        sublime.CLASS_LINE_END | 
+        sublime.CLASS_EMPTY_LINE
+    )
+
+def sub_word_down(view, current):
+    return view.find_by_class(current.end()+1, True, 
+        sublime.CLASS_SUB_WORD_START | 
+        sublime.CLASS_SUB_WORD_END | 
+        sublime.CLASS_PUNCTUATION_START | 
+        sublime.CLASS_PUNCTUATION_END | 
+        # sublime.CLASS_LINE_START | 
+        sublime.CLASS_LINE_END | 
+        sublime.CLASS_EMPTY_LINE
+    )
+
+def word_up(view, current):
+    return view.find_by_class(current.begin(), False, 
+        sublime.CLASS_WORD_START | 
+        sublime.CLASS_WORD_END | 
+        sublime.CLASS_PUNCTUATION_START | 
+        sublime.CLASS_PUNCTUATION_END | 
+        # sublime.CLASS_LINE_START | 
+        sublime.CLASS_LINE_END | 
+        sublime.CLASS_EMPTY_LINE
+    )
+
+def word_down(view, current):
+    return view.find_by_class(current.end()+1, True, 
+        sublime.CLASS_WORD_START | 
+        sublime.CLASS_WORD_END | 
+        sublime.CLASS_PUNCTUATION_START | 
+        sublime.CLASS_PUNCTUATION_END | 
+        # sublime.CLASS_LINE_START | 
+        sublime.CLASS_LINE_END | 
+        sublime.CLASS_EMPTY_LINE
+    )
+
+def complete(up, down, current):
+    return sublime.Region(up(current), down(current))
+
+def complete_if_unselected(up, down, current):
+    return sublime.Region(up(current), down(current)) if current.size() < 1 else current
 
 def smart_up(regions, current):
-    target = region_b(regions, current.begin() - 1) or last(regions)
-    return target.begin() 
+    target = region_b(regions, current.b - 1) or first(regions)
+    return target.begin() -1
 
 def smart_down(regions, current):
-    target = region_f(regions, current.end()) or first(regions)
-    return target.begin()
+    target = region_f(regions, current.b + 1) or last(regions)
+    return target.begin() -1
 
+def smart_up_expand(regions, current):
+    target = region_b(regions, current.b-1) or first(regions)
+    return sublime.Region(current.a, target.begin()-1)
+
+def smart_down_expand(regions, current):
+    target = region_f(regions, current.b+1) or last(regions)
+    return sublime.Region(current.a, target.begin()-1)
+
+def smart_up_complete (regions, current):
+    before = region_b(regions, current.begin()-1) or first(regions)
+    after = region_f(regions, current.end()+1) or last(regions)
+    return sublime.Region(before.begin(), after.begin()-1)
+
+def smart_down_complete (regions, current):
+    before = region_b(regions, current.begin()) or first(regions)
+    after = region_f(regions, current.end()+1) or last(regions)
+    return sublime.Region(before.begin(), after.begin())
 
 def get_words(view, region):
     word = view.substr(region)

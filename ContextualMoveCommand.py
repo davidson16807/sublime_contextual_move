@@ -43,3 +43,6 @@ class ContextualMoveCommand(sublime_plugin.WindowCommand):
 		if extremum:
 			settings.set('move_context_extremum', False)
 			# settings.set('move_context', 'default')
+		
+		if context in ['defaul', 'default_extremum']:
+			settings.set('move_context', 'default')

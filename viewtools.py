@@ -156,7 +156,6 @@ def list_blocks(view):
     empty_lines = view.find_all(r'^\s*\n')
     return invert_regions(view, empty_lines)
 
-
 ### Regions
 
 def region_at(regions, pos):
