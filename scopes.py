@@ -15,9 +15,11 @@ class MoveByFunctionCommand(sublime_plugin.TextCommand):
     def run(self, edit, forward, expand = False, complete = False, delete = False):
         regions = list_defs(self.view) or list_blocks(self.view)
         # if complete:
-        #    map_selection(self.view, partial(expand_region_if_empty, partial(smart_up, regions), partial(smart_up, regions)))
+        #    map_selection(self.view, partial(complete_if_empty, partial(smart_up, regions), partial(smart_up, regions)))
         if expand or delete:
-            map_selection(self.view, partial(smart_down_expand if forward else smart_up_expand, regions))
+            up = partial(smart_up, regions)
+            down = partial(smart_down, regions)
+            map_selection(self.view, partial(complete_or_expand, up, down, forward))
         else:
             map_selection(self.view, partial(smart_down if forward else smart_up, regions))
         if delete:
@@ -29,9 +31,6 @@ class TransposeByCommand(sublime_plugin.TextCommand):
             regions = list_defs(self.view) or list_blocks(self.view)
             up = partial(smart_up_transpose, regions)
             down = partial(smart_down_transpose, regions)
-            # transpose_function(self.view, edit, forward, up, down)
-            map_selection(self.view, partial(expand_region_if_empty, up, down))
-            transpose_selection(self.view, edit, forward, up, down)
         else:
             up = {
                 'characters': partial(char_up, self.view),
@@ -43,31 +42,8 @@ class TransposeByCommand(sublime_plugin.TextCommand):
                 'subwords': partial(sub_word_down, self.view),
                 'words': partial(word_down, self.view),
             }[by]
-            map_selection(self.view, partial(expand_region_if_empty, up, down))
-            transpose_selection(self.view, edit, forward, up, down)
-
-def transpose_function(view, edit, forward, up, down):
-    old_selections = view.sel()
-    replacements = []
-    for current in old_selections:
-        if forward:  
-            source = sublime.Region(up(current)-1, down(current)-1)
-            destination = sublime.Region(source.b, down(source)-1)
-            top = view.substr(source) 
-            bottom = view.substr(destination)
-            offset = destination.size()
-        else:
-            source = sublime.Region(down(current)-1, up(current)-1)
-            destination = sublime.Region(source.b, up(source)-1) 
-            top = view.substr(destination) 
-            bottom = view.substr(source)
-            offset = -destination.size()
-        replacements.append((source.cover(destination), bottom+top, sublime.Region(current.a + offset, current.b + offset)))
-    view.sel().clear()
-    for region, text, selection in replacements:
-        view.replace(edit, region, text)
-    view.sel().add_all([selection for region, text, selection in replacements])
-    view.show(view.sel())
+        map_selection(self.view, partial(complete_if_empty, up, down))
+        transpose_selection(self.view, edit, forward, up, down)
 
 def transpose_selection(view, edit, forward, up, down):
     old_selections = view.sel()
@@ -140,6 +116,11 @@ def word_down(view, current):
         sublime.CLASS_EMPTY_LINE
     )
 
+def current_start(current):
+    return current.a
+
+def current_stop(current):
+    return current.b
 
 def smart_up_transpose(regions, current):
     target = region_b(regions, current.begin()-1) or first(regions)
@@ -157,19 +138,14 @@ def smart_down(regions, current):
     target = region_f(regions, current.b + 1) or last(regions)
     return target.begin()
 
-def smart_up_expand(regions, current):
-    target = region_b(regions, current.b-1) or first(regions)
-    return sublime.Region(current.a, target.begin()-1)
-
-def smart_down_expand(regions, current):
-    target = region_f(regions, current.b+1) or last(regions)
-    return sublime.Region(current.a, target.begin()-1)
-
-def expand_region(up, down, current):
-    return sublime.Region(up(current), down(current))
-
-def expand_region_if_empty(up, down, current):
+def complete_if_empty(up, down, current):
     return sublime.Region(up(current), down(current)) if current.size() < 1 else current
+
+def complete_or_expand(up, down, forward, current):
+    if current.size() < 1:
+        return sublime.Region(up(current), down(current)) if forward else sublime.Region(down(current), up(current))
+    else:
+        return sublime.Region(current.a, down(current) if forward else up(current))
 
 
 def get_words(view, region):
