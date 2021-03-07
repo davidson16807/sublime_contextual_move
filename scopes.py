@@ -1,8 +1,14 @@
+# -*- coding: utf-8 -*-
+
+"""
+Contents modified from Alexander Schepanovski's Reform plugin, credit goes to him: https://github.com/Suor/sublime-reform
+"""
+
 import sublime, sublime_plugin
 ST3 = sublime.version() >= '3000'
 
 from functools import partial, reduce
-from itertools import takewhile
+from itertools import takewhile, chain
 
 try:
     from .funcy import *
@@ -11,11 +17,14 @@ except ValueError: # HACK: for ST2 compatability
     from funcy import * 
     from viewtools import *
 
-class MoveByFunctionCommand(sublime_plugin.TextCommand):
-    def run(self, edit, forward, expand = False, complete = False, delete = False, by='functions'):
-        regions = (list_defs(self.view) if by == 'functions' else list_class_defs(self.view)) or list_blocks(self.view)
-        up = partial(smart_up, regions)
-        down = partial(smart_down, regions)
+class MoveByScopeCommand(sublime_plugin.TextCommand):
+    def run(self, edit, forward, by, expand = False, complete = False, delete = False):
+        if by == 'functions':
+            regions = list_defs(self.view) or list_blocks(self.view)
+        elif by == 'classes':
+            regions = list_class_defs(self.view) or list_blocks(self.view)
+        up = partial(smart_up, regions) #if by != 'separators' else partial(separator_up, self.view)
+        down = partial(smart_down, regions) #if by != 'separators' else partial(separator_down, self.view)
         if complete and (expand or delete):
             map_selection(self.view, partial(complete_or_expand, up, down, forward))
         elif complete:
@@ -26,6 +35,14 @@ class MoveByFunctionCommand(sublime_plugin.TextCommand):
             map_selection(self.view, down if forward else up)
         if delete:
             self.view.run_command('left_delete')
+
+class IndentScopeCommand(sublime_plugin.TextCommand):
+    def run(self, edit, forward, by):
+        regions = (list_defs(self.view) if by == 'functions' else list_class_defs(self.view)) or list_blocks(self.view)
+        up = partial(smart_up, regions)
+        down = partial(smart_down, regions)
+        map_selection(self.view, partial(complete_if_empty, up, down))
+        self.view.run_command('indent' if forward else 'unindent')
 
 class TransposeByCommand(sublime_plugin.TextCommand):
     def run(self, edit, forward, by):
@@ -120,6 +137,16 @@ def word_down(view, current):
         sublime.CLASS_EMPTY_LINE
     )
 
+def separator_up(view, current):
+    regions = list_separator_defs(view, current)
+    return region_b(regions, current.b - 1) or first(regions)
+    return target.begin() 
+
+def separator_down(view, current):
+    regions = list_separator_defs(view, current)
+    target = region_f(regions, current.b + 1) or last(regions)
+    return target.begin()
+
 def smart_up(regions, current):
     target = region_b(regions, current.b - 1) or first(regions)
     return target.begin() 
@@ -131,8 +158,11 @@ def smart_down(regions, current):
 def just_expand(up, down, forward, current):
     return sublime.Region(current.a, down(current) if forward else up(current))
 
+def just_complete(up, down, current):
+    return sublime.Region(up(current), down(current))
+
 def complete_if_empty(up, down, current):
-    return sublime.Region(up(current), down(current)) if current.size() < 1 else current
+    return just_complete(up, down, current) if current.size() < 1 else current
 
 def complete_or_expand(up, down, forward, current):
     if current.size() < 1:
@@ -180,4 +210,52 @@ def list_defs(view):
     classes = list_class_defs(view)
     return order_regions(funcs + classes)
 
+def list_separator_defs(view, current):
+    selector_pairs = [
+        ('punctuation.section.group.begin', 'punctuation.section.group.end'),
+        ('punctuation.section.block.begin', 'punctuation.section.block.end'),
+        ('punctuation.section.braces.begin', 'punctuation.section.braces.end'),
+        ('punctuation.section.brackets.begin', 'punctuation.section.brackets.end'),
+        ('punctuation.section.parens.begin', 'punctuation.section.parens.end'),
+    ]
+    start_region, end_region = nearest_pair_from_selector_pairs(view, current, selector_pairs)
+    return list(abut_regions(
+            start_region, 
+            regions_between_region_pair((start_region, end_region), view.find_by_selector('punctuation.separator')), 
+            end_region))
 
+def abut_regions(start_region, separator_region, end_region):
+    start = start_region.end()
+    for separator_region in separator_region:
+        print(start, separator_region.start())
+        yield sublime.Region(start, separator_region.start())
+        start = separator_region.end()
+
+def regions_between_region_pair(pair, regions):
+    return filter(partial(region_pair_contains, nearest_pair), regions)
+
+def nearest_pair_from_selector_pairs(view, current, selector_pairs):
+    return min(map(partial(nearest_region_pair, view, current), selector_pairs), key=region_pair_size)
+
+def nearest_region_pair(view, current, selector_pair):
+    start_selector, end_selector = selector_pair
+    return (min(filter(partial(is_start_before, current), view.find_by_selector(start_selector)), key=start_proximity),
+            min(filter(partial(is_end_after, current), view.find_by_selector(end_selector)), key=end_proximity))
+
+def region_pair_size(pair):
+    start_match, end_match = pair
+    return start_match.cover(end_match).size()
+
+def region_pair_contains(pair, region):
+    start_match, end_match = pair
+    return start_match.end() < region.begin() and region.end() < end_match.begin()
+
+def is_start_before(current, start):
+    return start.end() < current.begin()
+def start_proximity(current, start):
+    return abs(start.end() - current.begin())
+
+def is_end_after(current, end):
+    return current.end() < end.begin()
+def end_proximity(current, end):
+    return abs(current.end() - end.begin())
