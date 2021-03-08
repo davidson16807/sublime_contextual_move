@@ -20,17 +20,27 @@ except ValueError: # HACK: for ST2 compatability
 '''
 NOTE: Our design goal is to commute the following diagram using our implementation:
 ```
-% https://tikzcd.yichuanshen.de/#N4Igdg9gJgpgziAXAbVABwnAlgFyxMJZAJgBpiBdUkANwEMAbAVxiRACEQBfU9TXfIRRkAzFVqMWbAKLdeIDNjwEiI8uPrNWiEAAU5fJYNWkAjBsna9Bhf2VCSZi1pk3FAlcNIAGZ1J2cPIYeDqZO1Jr+IABKbnbGKGFiEZZssUG2Rp7IYQCsflbp8u72RGQALAVsgcXx2WT5KS46shklCchqlU1R+m11Dt6k3RLNIAAqcVmD6j1Wk1ziMFAA5vBEoABmAE4QALZIZCA4EEhDo1Fo2zA0AEYwK1iE1Ax09wy6A2zbWCsAFjgbDt9odqCckGELlYwDAAB44GBgKBA3YHRCQ8GIc6RKxXG73R6EDLAtHnTGQuB-LCbQGIAC0kJxbBh8MRyOJqLOYNOiDUULYeJoAGM-nRtiiQbzuUhcnMBdc7g8nhK0bLjjzyhzJQA2aWIcovJ5WKAQHAI9nyElIXXqmWGmFsE1m5YqpAAdj1NoYRrYcAg3uRcp0guujxUWrRBttiDVlOptIZEfdevO3odOid5tdiA90chaeNpqzScQAA49aZUz6M0WXSXy9GAJz2wvOi1bTk5vUNgu+-1YQP8nQsnCh4wvN4wD5fHQ-f6AkvNvPnOM0pCJy2dyt6xsljE80yM1LDuE4EVikAT96fabfX4A7OHivePdHTG53s1tuPt88nvVkBMzrTdJVMPlMS9ACgPbEArXRcCeQ-KDaxguDc3JPlVwTUwS3Qg8jiwiES1-JARBLBDQRAQj6RwkC0RI9FaI7UD90o6icIoLggA
+% https://tikzcd.yichuanshen.de/#N4Igdg9gJgpgziAXAbVABwnAlgFyxMJZAJgBpiBdUkANwEMAbAVxiRACEQBfU9TXfIRRkAzFVqMWbAKLdeIDNjwEiI8uPrNWiEAAU5fJYNWkAjBsna9Bhf2VCSZi1pk3FAlcNIAGZ1J2cPIYeDqZO1Jr+IABKbnbGKGFiEZZssUG2Rp7IYQCsflbp8u72RGQALAVsgcXx2WT5KS46shklCchqlU1R+m11Dt6k3RLNIAAqcVmD6j1Wk1ziMFAA5vBEoABmAE4QALZIZCA4EEhDo1Fo2zA0AEYwK1iE1Ax09wy6A2zbWCsAFjgbDt9odqCckGELlYwDAAB44GBgKBA3YHRCQ8GIc6RKxXG73R6EDLAtHnTGQuB-LCbQGIAC0kJxbBh8MRyOJqLOYNOiDUULYeJoAGM-nRtiiQbzuUhcnMBdc7g8niAXm8YB8vjofv9ARzJbLjjzynq0QA2aWIcovJ5WKAQHAI9nyElIc2GmXWmFsO0O5YStEAdgtboYNrYcAgoeRcp0guujxUJqQVvdiANlOptIZScQQdT51DXp0Psd-qQefJntt9tLOYAHBbTAWw8Wa376xaAJxV71tp1bTm5i0NkCFqwRqMq-k6Fk4ePGVXvT7Tb6-AFlxDd1NN6gZmlIbPOwc71OdnMYnmmRmpGdwnAisVT15LzUgbXr88XiHec9HTF5sde19fsQBddE-x5EdANbYCN1MPlMRDFsQBLdsj0leCLQA5DUJAsCK0vPk9yzUwcwIiEjmIiEcwgpARBzBCeUoql93pUj0LRWj0XYgcMK-RBmMzaiKC4IA
 \begin{tikzcd}
                                         &                                                                                                                                          & B \arrow[d]                                               &                                                                      \\
-                                        & R \arrow[r, dotted] \arrow[ru, dotted]                                                                                                   & E \arrow[u, shift left]                                   & P \arrow[lu, "prevbegin"] \arrow[d, shift left]                      \\
+                                        & R \arrow[r, dotted] \arrow[ru, dotted]                                                                                                   & E \arrow[u, shift left]                                   & P \arrow[lu, "prevbegin"'] \arrow[d, shift left]                     \\
 T \arrow[ru, dotted] \arrow[rd, dotted] &                                                                                                                                          & B \arrow[d, "nextend", shift left] \arrow[ru, "prevchar"] & P \arrow[l, "prevbegin"'] \arrow[ld, "nextend"] \arrow[u] \arrow[dd] \\
                                         & R \arrow[uu, "prevregion"] \arrow[ru, dotted] \arrow[r, dotted] \arrow[dd, "nextregion"'] \arrow[lu, shift left] \arrow[ld, shift right] & E \arrow[u, "prevbegin"] \arrow[rd, "nextchar"']          &                                                                      \\
 T \arrow[ru, dotted] \arrow[rd, dotted] &                                                                                                                                          & B \arrow[d, shift left]                                   & P \arrow[ld] \arrow[uu, shift right]                                 \\
                                         & R \arrow[r, dotted] \arrow[ru, dotted]                                                                                                   & E \arrow[u]                                               &                                                                     
 \end{tikzcd}
 ```
-where "P" is a point, "R" is a region, "E" is the end of a region, "B" is the beginning of a region, and "T" is a transposition between regions
+Where "P" is a point, "R" is a region, "E" is the end of a region, "B" is the beginning of a region, and "T" is a transposition between regions.
+
+This design allows us to define a region type (e.g. word, function, class, etc.) using only two functions:
+one to express for any position how to get to the very next region end going down,
+and the other to express for any position how to get to the very next region beginning going up.
+By composing these two you can construct the boundaries for any region,  
+and combining these functions with character traversal lets you find the boundaries of adjacent regions.
+Certain types of regions (e.g. functions or classes) may be easier to define by first obtaining a full list of regions,
+and these types can be defined using the two aforementioned functions by comparing known region boundaries with current position. 
+However this approach is not suitable for region types like words, where there are a large number of regions to consider.
+This approach allows us to define both kinds of region types using a single common interface.
 '''
 
 
@@ -357,44 +367,3 @@ def invert_regions(view, regions):
 
 
 
-
-
-def abut_regions(separator_region):
-    start = 0
-    for separator_region in separator_region:
-        print(start, separator_region.begin())
-        yield sublime.Region(start, separator_region.begin())
-        start = separator_region.end()
-
-def regions_between_region_pair(pair, regions):
-    return filter(partial(region_pair_contains, nearest_pair), regions)
-
-def nearest_pair_from_selector_pairs(view, current, selector_pairs):
-    pairs = filter(identity, map(partial(nearest_region_pair, view, current), selector_pairs))
-    return min(pairs, key=region_pair_size)
-
-def nearest_region_pair(view, current, selector_pair):
-    start_selector, end_selector = selector_pair
-    start_regions = view.find_by_selector(start_selector)
-    end_regions = view.find_by_selector(end_selector)
-    if not start_regions or not end_regions: return []
-    return (min(filter(partial(is_start_before, current), start_regions), key=partial(start_proximity, current)),
-            min(filter(partial(is_end_after, current), end_regions), key=partial(end_proximity, current)))
-
-def region_pair_size(pair):
-    start_match, end_match = pair
-    return start_match.cover(end_match).size()
-
-def region_pair_contains(pair, region):
-    start_match, end_match = pair
-    return start_match.end() < region.begin() and region.end() < end_match.begin()
-
-def is_start_before(current, start):
-    return start.end() < current.begin()
-def start_proximity(current, start):
-    return abs(start.end() - current.begin())
-
-def is_end_after(current, end):
-    return current.end() < end.begin()
-def end_proximity(current, end):
-    return abs(current.end() - end.begin())
