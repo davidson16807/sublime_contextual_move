@@ -294,8 +294,8 @@
 			"classes": { "command": "move_by_scope", "args": {"forward": false, "by": "classes", "expand": true, "complete": true}},
 
 			"default_extremum": { "command": "move_to", "args": {"to": "bof", "extend": true} },
-			"functions_extremum": { "command": "move_by_scope", "args": {"forward": false, "by": "functions", "expand": true, "complete": true, "to_end": true}},
-			"classes_extremum": { "command": "move_by_scope", "args": {"forward": false, "by": "classes", "expand": true, "complete": true, "to_end": true}},
+			// "functions_extremum": { "command": "move_by_scope", "args": {"forward": false, "by": "functions", "expand": true, "complete": true, "to_end": true}},
+			// "classes_extremum": { "command": "move_by_scope", "args": {"forward": false, "by": "classes", "expand": true, "complete": true, "to_end": true}},
 
 			"history": 	{ "command": "undo" },
 			"lines": 	{ "command": "move", "args": {"by": "wholelines", "forward": false} },
@@ -308,9 +308,9 @@
 			"classes": { "command": "move_by_scope", "args": {"forward": false, "by": "classes", "complete": true, "delete": true}},
 
 			"default_extremum": { "command": "run_macro_file", "args": {"file": "res://Packages/ContextualMove/Delete to BOF.sublime-macro"} },
-			"functions_extremum": { "command": "move_by_scope", "args": {"forward": false, "by": "functions", "complete": true, "delete": true, "to_end": true}},
-			"classes_extremum": { "command": "move_by_scope", "args": {"forward": false, "by": "classes", "complete": true, "delete": true, "to_end": true}},
-		}	
+			// "functions_extremum": { "command": "move_by_scope", "args": {"forward": false, "by": "functions", "complete": true, "delete": true, "to_end": true}},
+			// "classes_extremum": { "command": "move_by_scope", "args": {"forward": false, "by": "classes", "complete": true, "delete": true, "to_end": true}},
+		}
 	},
 	{ "keys": ["ctrl+shift+alt+i"], "command": "contextual_move",
 		"args": {
@@ -372,8 +372,8 @@
 			"classes": { "command": "move_by_scope", "args": {"forward": true, "by": "classes", "expand": true, "complete": true}},
 
 			"default_extremum": { "command": "move_to", "args": {"to": "eof", "extend": true} },
-			"functions_extremum": { "command": "move_by_scope", "args": {"forward": true, "by": "functions", "expand": true, "complete": true, "to_end": true}},
-			"classes_extremum": { "command": "move_by_scope", "args": {"forward": true, "by": "classes", "expand": true, "complete": true, "to_end": true}},
+			// "functions_extremum": { "command": "move_by_scope", "args": {"forward": true, "by": "functions", "expand": true, "complete": true, "to_end": true}},
+			// "classes_extremum": { "command": "move_by_scope", "args": {"forward": true, "by": "classes", "expand": true, "complete": true, "to_end": true}},
 
 			"history": 	{ "command": "redo" },
 			"lines": 	{ "command": "move", "args": {"by": "wholelines", "forward": true} },
@@ -394,8 +394,8 @@
 			"classes": { "command": "move_by_scope", "args": {"forward": true, "by": "classes", "complete": true, "delete": true}},
 
 			"default_extremum": { "command": "run_macro_file", "args": {"file": "res://Packages/ContextualMove/Delete to EOF.sublime-macro"} },
-			"functions_extremum": { "command": "move_by_scope", "args": {"forward": true, "by": "functions", "complete": true, "delete": true, "to_end": true}},
-			"classes_extremum": { "command": "move_by_scope", "args": {"forward": true, "by": "classes", "complete": true, "delete": true, "to_end": true}},
+			// "functions_extremum": { "command": "move_by_scope", "args": {"forward": true, "by": "functions", "complete": true, "delete": true, "to_end": true}},
+			// "classes_extremum": { "command": "move_by_scope", "args": {"forward": true, "by": "classes", "complete": true, "delete": true, "to_end": true}},
 		}	
 	},
 	{ "keys": ["ctrl+shift+alt+k"], "command": "contextual_move",

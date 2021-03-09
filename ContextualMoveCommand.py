@@ -13,7 +13,7 @@ class DoOnceMoveContextCommand(sublime_plugin.WindowCommand):
 	def run(self, value):
 		settings = self.window.settings();
 		settings.set('move_context', value)
-		settings.set('move_context_do_once', value)
+		settings.set('move_context_do_once', True)
 
 class ExtremumMoveContextCommand(sublime_plugin.WindowCommand):
 	def run(self):
@@ -32,17 +32,20 @@ class ContextualMoveCommand(sublime_plugin.WindowCommand):
 			context = context+'_extremum' if context+'_extremum' in commands else 'default_extremum'
 		else:
 			context = context if context in commands else 'default'
-		print(context)
 		
 		if context in commands:
 			command = commands[context]
 			args = command['args'] if 'args' in command else {}
 			self.window.run_command(command['command'], args)
-			print(command)
 
 		if extremum:
 			settings.set('move_context_extremum', False)
 			# settings.set('move_context', 'default')
+
+		if do_once:
+			settings.set('move_context', 'default')
+			settings.set('move_context_do_once', False)
+			# settings.set('move_context', 'default')
 		
-		if context in ['defaul', 'default_extremum']:
+		if context in ['default', 'default_extremum']:
 			settings.set('move_context', 'default')

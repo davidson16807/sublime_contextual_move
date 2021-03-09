@@ -48,13 +48,7 @@ class MoveByScopeCommand(sublime_plugin.TextCommand):
         if to_end:
             end_position = self.view.size()-1 if forward else 0
             end = sublime.Region(end_position, end_position)
-            if expand:
-                set_selection(self.view, [expansion(RegionExpansion(demarcation_), not forward, complete, end)])
-            elif delete:
-                set_selection(self.view, [expansion(RegionExpansion(demarcation_), not forward, True, end)])
-                self.view.run_command('left_delete')
-            else:
-                set_selection(self.view, [movement(RegionTraversal(demarcation_), not forward, end)])
+            set_selection(self.view, [movement(RegionTraversal(demarcation_), not forward, end)])
         elif expand:
             set_selection(self.view, 
                 map(partial(expansion, RegionExpansion(demarcation_), forward, complete), 
