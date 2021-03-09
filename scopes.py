@@ -4,6 +4,7 @@
 Contents modified from Alexander Schepanovski's Reform plugin, credit goes to him: https://github.com/Suor/sublime-reform
 """
 
+import re
 import sublime, sublime_plugin
 ST3 = sublime.version() >= '3000'
 
@@ -18,25 +19,21 @@ except ValueError: # HACK: for ST2 compatability
     from viewtools import *
 
 '''
-NOTE: Our design goal is to commute the following diagram using our implementation:
-```
-% https://tikzcd.yichuanshen.de/#N4Igdg9gJgpgziAXAbVABwnAlgFyxMJZAJgBpiBdUkANwEMAbAVxiRACEQBfU9TXfIRRkAzFVqMWbAKLdeIDNjwEiI8uPrNWiEAAU5fJYNWkAjBsna9Bhf2VCSZi1pk3FAlcNIAGZ1J2cPIYeDqZO1Jr+IABKbnbGKGFiEZZssUG2Rp7IYQCsflbp8u72RGQALAVsgcXx2WT5KS46shklCchqlU1R+m11Dt6k3RLNIAAqcVmD6j1Wk1ziMFAA5vBEoABmAE4QALZIZCA4EEhDo1Fo2zA0AEYwK1iE1Ax09wy6A2zbWCsAFjgbDt9odqCckGELlYwDAAB44GBgKBA3YHRCQ8GIc6RKxXG73R6EDLAtHnTGQuB-LCbQGIAC0kJxbBh8MRyOJqLOYNOiDUULYeJoAGM-nRtiiQbzuUhcnMBdc7g8niAXm8YB8vjofv9ARzJbLjjzynq0QA2aWIcovJ5WKAQHAI9nyElIc2GmXWmFsO0O5YStEAdgtboYNrYcAgoeRcp0guujxUJqQVvdiANlOptIZScQQdT51DXp0Psd-qQefJntt9tLOYAHBbTAWw8Wa376xaAJxV71tp1bTm5i0NkCFqwRqMq-k6Fk4ePGVXvT7Tb6-AFlxDd1NN6gZmlIbPOwc71OdnMYnmmRmpGdwnAisVT15LzUgbXr88XiHec9HTF5sde19fsQBddE-x5EdANbYCN1MPlMRDFsQBLdsj0leCLQA5DUJAsCK0vPk9yzUwcwIiEjmIiEcwgpARBzBCeUoql93pUj0LRWj0XYgcMK-RBmMzaiKC4IA
-\begin{tikzcd}
-                                        &                                                                                                                                          & B \arrow[d]                                               &                                                                      \\
-                                        & R \arrow[r, dotted] \arrow[ru, dotted]                                                                                                   & E \arrow[u, shift left]                                   & P \arrow[lu, "prevbegin"'] \arrow[d, shift left]                     \\
-T \arrow[ru, dotted] \arrow[rd, dotted] &                                                                                                                                          & B \arrow[d, "nextend", shift left] \arrow[ru, "prevchar"] & P \arrow[l, "prevbegin"'] \arrow[ld, "nextend"] \arrow[u] \arrow[dd] \\
-                                        & R \arrow[uu, "prevregion"] \arrow[ru, dotted] \arrow[r, dotted] \arrow[dd, "nextregion"'] \arrow[lu, shift left] \arrow[ld, shift right] & E \arrow[u, "prevbegin"] \arrow[rd, "nextchar"']          &                                                                      \\
-T \arrow[ru, dotted] \arrow[rd, dotted] &                                                                                                                                          & B \arrow[d, shift left]                                   & P \arrow[ld] \arrow[uu, shift right]                                 \\
-                                        & R \arrow[r, dotted] \arrow[ru, dotted]                                                                                                   & E \arrow[u]                                               &                                                                     
-\end{tikzcd}
-```
-Where "P" is a point, "R" is a region, "E" is the end of a region, "B" is the beginning of a region, and "T" is a transposition between regions.
+NOTE: Our design goal is to commute the diagram in "CATEGORY.png" using our implementation.
+The diagram uses the following notations:
+* "P" is a point
+* "R" is a region
+* "E" is the end of a region
+* "B" is the beginning of a region
+* "T" is a transposition between regions.
+* trivial product morphisms are indicated by dotted lines
 
 This design allows us to define a region type (e.g. word, function, class, etc.) using only two functions:
-one to express for any position how to get to the very next region end going down,
-and the other to express for any position how to get to the very next region beginning going up.
-By composing these two you can construct the boundaries for any region,  
-and combining these functions with character traversal lets you find the boundaries of adjacent regions.
+one function expresses for any position how to get to the very next region end going down,
+and the other function expresses for any position how to get to the very next region beginning going up.
+Both functions are idempotent: feeding output back in returns the same position (as shown in the diagrams).
+By composing these two functions you can construct the boundaries for any region,  
+and combining these functions with character offsets ("prevchar" and "nextchar") lets you find the boundaries of adjacent regions.
 Certain types of regions (e.g. functions or classes) may be easier to define by first obtaining a full list of regions,
 and these types can be defined using the two aforementioned functions by comparing known region boundaries with current position. 
 However this approach is not suitable for region types like words, where there are a large number of regions to consider.
@@ -45,7 +42,7 @@ This approach allows us to define both kinds of region types using a single comm
 
 
 class MoveByScopeCommand(sublime_plugin.TextCommand):
-    def run(self, edit, forward, by, expand = False, complete = False, delete = False):
+    def run(self, edit, forward, by, expand = False, complete = False, delete = False, toend = False):
         demarcation_ = demarcation(self.view, by)
         if expand:
             set_selection(self.view, 
@@ -64,15 +61,14 @@ class MoveByScopeCommand(sublime_plugin.TextCommand):
             set_selection(self.view, 
                 map(partial(movement, RegionTraversal(demarcation_), forward), 
                     self.view.sel()))
-
-
+    
+    
 class IndentScopeCommand(sublime_plugin.TextCommand):
     def run(self, edit, forward, by):
         demarcation_ = demarcation(self.view, by)
-        set_selection(self.view, 
-            map(partial(completion, demarcation_, forward), 
+        set_replacements(self.view, edit,
+            map(partial(indentation, RegionTraversal(demarcation_), self.view, forward), 
                 self.view.sel()))
-        self.view.run_command('indent' if forward else 'unindent')
 
 class TransposeByCommand(sublime_plugin.TextCommand):
     def run(self, edit, forward, by):
@@ -82,26 +78,26 @@ class TransposeByCommand(sublime_plugin.TextCommand):
                 self.view.sel()))
 
 # SECTION: FUNCTIONS WITH SIDE EFFECTS THAT ARE USED TO COMPOSE COMMANDS
-def set_selection(view, region):
+def set_selection(view, regions):
     # NOTE: we need to materialize a possible iterator before clearing selection,
     #       as mapping selection is a common techique.
-    if iterable(region):
-        region = list(region)
+    if iterable(regions):
+        regions = list(regions)
 
     view.sel().clear()
-    add_selection(view, region)
+    add_selection(view, regions)
     view.show(view.sel())
 
-def add_selection(view, region):
-    if iterable(region):
+def add_selection(view, regions):
+    if iterable(regions):
         if ST3:
-            view.sel().add_all(list(region))
+            view.sel().add_all(list(regions))
         else:
             # .add_all() doesn't work with python lists in ST2
-            for r in region:
+            for region in regions:
                 view.sel().add(r)
     else:
-        view.sel().add(region)
+        view.sel().add(regions)
 
 def set_replacements(view, edit, replacements):
     replacements = list(replacements) if iterable(replacements) else replacements
@@ -111,7 +107,7 @@ def set_replacements(view, edit, replacements):
     view.sel().add_all([replacement.selection for replacement in replacements])
     view.show(view.sel())
 
-# SECTION: FUNCTIONS WITHOUT SIDE EFFECTS THAT ARE USED MAP SELECTIONS
+# SECTION: PURE FUNCTIONS THAT ARE USED TO MAP SELECTIONS
 def movement(traversal, forward, current):
     if forward: return traversal.next(current).begin()
     else: return traversal.prev(current).begin()
@@ -123,6 +119,28 @@ def completion(demarcation, forward, current):
 def expansion(expansion_, forward, complete, current):
     if current.size() < 1 and complete: return completion(expansion_.demarcation, forward, current)
     else: return expansion_.next(current) if forward else expansion_.prev(current)
+    
+def indentation(traversal, view, forward, current):
+    settings = view.settings()
+    tab_size = settings.get('tab_size', 4)
+    translate_tabs_to_spaces = settings.get('translate_tabs_to_spaces', False)
+    canonical_tab = (' ' * tab_size) if translate_tabs_to_spaces else '\t'
+    tab_regex = re.compile('^(\t|'+(' ' * tab_size)+')')
+    target = current
+    replacement = ''
+    offset = 0
+    region = completion(traversal.demarcation, True, current)
+    lines = view.lines(region)
+    previous = sublime.Region(lines[0].begin(), lines[0].begin()) if lines else None
+    for line in lines: 
+        target = target.cover(line)
+        inbetween = sublime.Region(previous.end(), line.begin())
+        line_text = view.substr(line)
+        line_replacement = (canonical_tab + line_text) if forward else tab_regex.sub('', line_text)
+        if line.begin() < current.begin(): offset += len(line_replacement) - len(line_text)
+        replacement += view.substr(inbetween) + line_replacement
+        previous = line
+    return Replacement(target, replacement, sublime.Region(current.a + offset, current.b + offset))
 
 def transposition(traversal, view, forward, current):
     source = completion(traversal.demarcation, forward, current) if current.size() < 1 else current
@@ -140,10 +158,13 @@ def transposition(traversal, view, forward, current):
         bottom = view.substr(source)
         middle = view.substr(inbetween)
         offset = -destination.size()
-    return Replacement(
-        source.cover(destination), 
-        bottom+middle+top, 
-        sublime.Region(current.a + offset, current.b + offset))
+    if source.cover(destination).size() == source.size():
+        return Replacement(source, top, current)
+    else:
+        return Replacement(
+            source.cover(destination), 
+            bottom+middle+top, 
+            sublime.Region(current.a + offset, current.b + offset))
 
 # SECTION: MISCELLANEOUS FUNCTIONS AND STRUCTURES THAT ARE USED TO COMPOSE COMMANDS
 def demarcation(view, type):
