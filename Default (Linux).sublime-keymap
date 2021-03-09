@@ -247,17 +247,21 @@
 	{ "keys": ["ctrl+i"], "command": "contextual_move", 
 		"args": {
 			"default": { "command": "move", "args": {"by": "lines", "forward": false} },
-			"line_insert": { "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line Before.sublime-macro"} },
-			"history": { "command": "soft_undo" },
 			"lines": { "command": "move", "args": {"by": "lines", "forward": false} },
-			"tabs": 	{ "command": "scroll_lines", "args": {"amount": 10.0 } },
 			"functions": { "command": "move_by_scope", "args": {"forward": false, "by": "functions"}},
 			"classes": { "command": "move_by_scope", "args": {"forward": false, "by": "classes"}},
+			
+			"default_extremum": { "command": "move_to", "args": {"to": "bof", "extend": false} },
+			"functions_extremum": { "command": "move_by_scope", "args": {"forward": false, "by": "functions", "to_end": true}},
+			"classes_extremum": { "command": "move_by_scope", "args": {"forward": false, "by": "classes", "to_end": true}},
+
+			"line_insert": { "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line Before.sublime-macro"} },
+			"tabs": 	{ "command": "scroll_lines", "args": {"amount": 10.0 } },
+			"history": { "command": "soft_undo" },
 			"cursor": { "command": "select_lines", "args": {"forward": false} },
 			"fontsizes": { "command": "increase_font_size", },
 			"misspellings": { "command": "prev_misspelling", },
 			"bookmarks": { "command": "prev_bookmark", },
-			"default_extremum": { "command": "move_to", "args": {"to": "bof", "extend": false} },
 		},
 	},
 	{ "keys": ["ctrl+i"],    
@@ -286,11 +290,15 @@
 	{ "keys": ["ctrl+shift+i"], "command": "contextual_move", 
 		"args": {
 			"default": 	{ "command": "move", "args": {"by": "lines", "forward": false, "extend": true} },
-			"history": 	{ "command": "undo" },
-			"lines": 	{ "command": "move", "args": {"by": "wholelines", "forward": false} },
 			"functions": { "command": "move_by_scope", "args": {"forward": false, "by": "functions", "expand": true, "complete": true}},
 			"classes": { "command": "move_by_scope", "args": {"forward": false, "by": "classes", "expand": true, "complete": true}},
+
 			"default_extremum": { "command": "move_to", "args": {"to": "bof", "extend": true} },
+			"functions_extremum": { "command": "move_by_scope", "args": {"forward": false, "by": "functions", "expand": true, "complete": true, "to_end": true}},
+			"classes_extremum": { "command": "move_by_scope", "args": {"forward": false, "by": "classes", "expand": true, "complete": true, "to_end": true}},
+
+			"history": 	{ "command": "undo" },
+			"lines": 	{ "command": "move", "args": {"by": "wholelines", "forward": false} },
 		},
 	},
 	{ "keys": ["ctrl+alt+i"], "command": "contextual_move",
@@ -298,7 +306,10 @@
 			"default": {"command": "run_macro_file", "args": {"file": "res://Packages/ContextualMove/Delete Line Before.sublime-macro"} },
 			"functions": { "command": "move_by_scope", "args": {"forward": false, "by": "functions", "complete": true, "delete": true}},
 			"classes": { "command": "move_by_scope", "args": {"forward": false, "by": "classes", "complete": true, "delete": true}},
+
 			"default_extremum": { "command": "run_macro_file", "args": {"file": "res://Packages/ContextualMove/Delete to BOF.sublime-macro"} },
+			"functions_extremum": { "command": "move_by_scope", "args": {"forward": false, "by": "functions", "complete": true, "delete": true, "to_end": true}},
+			"classes_extremum": { "command": "move_by_scope", "args": {"forward": false, "by": "classes", "complete": true, "delete": true, "to_end": true}},
 		}	
 	},
 	{ "keys": ["ctrl+shift+alt+i"], "command": "contextual_move",
@@ -314,17 +325,21 @@
 	{ "keys": ["ctrl+k"], "command": "contextual_move", 
 		"args": {
 			"default": { "command": "move", "args": {"by": "lines", "forward": true} },
+			"functions": { "command": "move_by_scope", "args": {"forward": true, "by": "functions"}},
+			"classes": { "command": "move_by_scope", "args": {"forward": true, "by": "classes"}},
+
+			"default_extremum": { "command": "move_to", "args": {"to": "eof", "extend": false} },
+			"functions_extremum": { "command": "move_by_scope", "args": {"forward": true, "by": "functions", "to_end": true}},
+			"classes_extremum": { "command": "move_by_scope", "args": {"forward": true, "by": "classes", "to_end": true}},
+
 			"history": { "command": "soft_redo" },
 			"lines": { "command": "move", "args": {"by": "lines", "forward": true} },
 			"line_insert": { "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line.sublime-macro"} },
-			"functions": { "command": "move_by_scope", "args": {"forward": true, "by": "functions"}},
-			"classes": { "command": "move_by_scope", "args": {"forward": true, "by": "classes"}},
 			"tabs": { "command": "scroll_lines", "args": {"amount": -10.0 } },
 			"cursor": { "command": "select_lines", "args": {"forward": true} },
 			"fontsizes": { "command": "decrease_font_size", },
 			"misspellings": { "command": "next_misspelling", },
 			"bookmarks": { "command": "next_bookmark", },
-			"default_extremum": { "command": "move_to", "args": {"to": "eof", "extend": false} },
 		},
 	},
 	{ "keys": ["ctrl+k"],    
@@ -353,11 +368,15 @@
 	{ "keys": ["ctrl+shift+k"], "command": "contextual_move", 
 		"args": {
 			"default": 	{ "command": "move", "args": {"by": "lines", "forward": true, "extend": true} },
-			"history": 	{ "command": "redo" },
-			"lines": 	{ "command": "move", "args": {"by": "wholelines", "forward": true} },
 			"functions": { "command": "move_by_scope", "args": {"forward": true, "by": "functions", "expand": true, "complete": true}},
 			"classes": { "command": "move_by_scope", "args": {"forward": true, "by": "classes", "expand": true, "complete": true}},
+
 			"default_extremum": { "command": "move_to", "args": {"to": "eof", "extend": true} },
+			"functions_extremum": { "command": "move_by_scope", "args": {"forward": true, "by": "functions", "expand": true, "complete": true, "to_end": true}},
+			"classes_extremum": { "command": "move_by_scope", "args": {"forward": true, "by": "classes", "expand": true, "complete": true, "to_end": true}},
+
+			"history": 	{ "command": "redo" },
+			"lines": 	{ "command": "move", "args": {"by": "wholelines", "forward": true} },
 		},
 	},
 	{ "keys": ["ctrl+shift+k"], "command": "find_under_expand",
@@ -373,15 +392,18 @@
 			"default": {"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Line.sublime-macro"} },
 			"functions": { "command": "move_by_scope", "args": {"forward": true, "by": "functions", "complete": true, "delete": true}},
 			"classes": { "command": "move_by_scope", "args": {"forward": true, "by": "classes", "complete": true, "delete": true}},
+
 			"default_extremum": { "command": "run_macro_file", "args": {"file": "res://Packages/ContextualMove/Delete to EOF.sublime-macro"} },
+			"functions_extremum": { "command": "move_by_scope", "args": {"forward": true, "by": "functions", "complete": true, "delete": true, "to_end": true}},
+			"classes_extremum": { "command": "move_by_scope", "args": {"forward": true, "by": "classes", "complete": true, "delete": true, "to_end": true}},
 		}	
 	},
 	{ "keys": ["ctrl+shift+alt+k"], "command": "contextual_move",
 		"args": {
 			"default": { "command": "swap_line_down", },
-			"lines": { "command": "swap_line_down", },
 			"functions": { "command": "transpose_by", "args": {"forward": true, "by": "functions"}},
 			"classes": { "command": "transpose_by", "args": {"forward": true, "by": "classes"}},
+			"lines": { "command": "swap_line_down", },
 		}	
 	},
 

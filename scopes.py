@@ -32,6 +32,7 @@ This design allows us to define a region type (e.g. word, function, class, etc.)
 one function expresses for any position how to get to the very next region end going down,
 and the other function expresses for any position how to get to the very next region beginning going up.
 Both functions are idempotent: feeding output back in returns the same position (as shown in the diagrams).
+Establishing this requirement allows a much cleaner implementation that avoids the introduction of off-by-one errors.
 By composing these two functions you can construct the boundaries for any region,  
 and combining these functions with character offsets ("prevchar" and "nextchar") lets you find the boundaries of adjacent regions.
 Certain types of regions (e.g. functions or classes) may be easier to define by first obtaining a full list of regions,
@@ -42,9 +43,19 @@ This approach allows us to define both kinds of region types using a single comm
 
 
 class MoveByScopeCommand(sublime_plugin.TextCommand):
-    def run(self, edit, forward, by, expand = False, complete = False, delete = False, toend = False):
+    def run(self, edit, forward, by, expand = False, complete = False, delete = False, to_end = False):
         demarcation_ = demarcation(self.view, by)
-        if expand:
+        if to_end:
+            end_position = self.view.size()-1 if forward else 0
+            end = sublime.Region(end_position, end_position)
+            if expand:
+                set_selection(self.view, [expansion(RegionExpansion(demarcation_), not forward, complete, end)])
+            elif delete:
+                set_selection(self.view, [expansion(RegionExpansion(demarcation_), not forward, True, end)])
+                self.view.run_command('left_delete')
+            else:
+                set_selection(self.view, [movement(RegionTraversal(demarcation_), not forward, end)])
+        elif expand:
             set_selection(self.view, 
                 map(partial(expansion, RegionExpansion(demarcation_), forward, complete), 
                     self.view.sel()))
@@ -101,11 +112,16 @@ def add_selection(view, regions):
 
 def set_replacements(view, edit, replacements):
     replacements = list(replacements) if iterable(replacements) else replacements
-    view.sel().clear()
+    regions = order_regions([replacement.region for replacement in replacements])
+    for region1, region2 in zip(regions, regions[1:]):
+        if region1.intersects(region2): return # do nothing if replacements step over each other
+    selections = []
+    offset = 0
     for replacement in replacements:
-        view.replace(edit, replacement.region, replacement.text)
-    view.sel().add_all([replacement.selection for replacement in replacements])
-    view.show(view.sel())
+        view.replace(edit, offset_region(replacement.region, offset), replacement.text)
+        selections.append(offset_region(replacement.selection, offset))
+        offset += len(replacement.text) - replacement.region.size()
+    set_selection(view, selections)
 
 # SECTION: PURE FUNCTIONS THAT ARE USED TO MAP SELECTIONS
 def movement(traversal, forward, current):
@@ -140,7 +156,7 @@ def indentation(traversal, view, forward, current):
         if line.begin() < current.begin(): offset += len(line_replacement) - len(line_text)
         replacement += view.substr(inbetween) + line_replacement
         previous = line
-    return Replacement(target, replacement, sublime.Region(current.a + offset, current.b + offset))
+    return Replacement(target, replacement, offset_region(current, offset))
 
 def transposition(traversal, view, forward, current):
     source = completion(traversal.demarcation, forward, current) if current.size() < 1 else current
@@ -161,10 +177,7 @@ def transposition(traversal, view, forward, current):
     if source.cover(destination).size() == source.size():
         return Replacement(source, top, current)
     else:
-        return Replacement(
-            source.cover(destination), 
-            bottom+middle+top, 
-            sublime.Region(current.a + offset, current.b + offset))
+        return Replacement(source.cover(destination), bottom+middle+top, offset_region(current, offset))
 
 # SECTION: MISCELLANEOUS FUNCTIONS AND STRUCTURES THAT ARE USED TO COMPOSE COMMANDS
 def demarcation(view, type):
@@ -364,6 +377,9 @@ def region_b(regions, pos):
 
 def region_f(regions, pos):
     return first(r for r in regions if pos < r.begin())
+
+def offset_region(region, offset):
+    return sublime.Region(region.a + offset, region.b + offset)
 
 def order_regions(regions):
     order = lambda r: (r.begin(), r.end())
