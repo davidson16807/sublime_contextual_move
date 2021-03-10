@@ -48,7 +48,7 @@ class MoveByScopeCommand(sublime_plugin.TextCommand):
         if to_end:
             end_position = self.view.size()-1 if forward else 0
             end = sublime.Region(end_position, end_position)
-            set_selection(self.view, [movement(RegionTraversal(demarcation_), not forward, end)])
+            set_selection(self.view, [movement(RegionMovement(demarcation_), not forward, end)])
         elif expand:
             set_selection(self.view, 
                 map(partial(expansion, RegionExpansion(demarcation_), forward, complete), 
@@ -64,7 +64,7 @@ class MoveByScopeCommand(sublime_plugin.TextCommand):
                     self.view.sel()))
         else:
             set_selection(self.view, 
-                map(partial(movement, RegionTraversal(demarcation_), forward), 
+                map(partial(movement, RegionMovement(demarcation_), forward), 
                     self.view.sel()))
     
     
@@ -75,7 +75,7 @@ class IndentScopeCommand(sublime_plugin.TextCommand):
             map(partial(indentation, RegionTraversal(demarcation_), self.view, forward), 
                 self.view.sel()))
 
-class TransposeByCommand(sublime_plugin.TextCommand):
+class TransposeByScopeCommand(sublime_plugin.TextCommand):
     def run(self, edit, forward, by):
         demarcation_ = demarcation(self.view, by)
         set_replacements(self.view, edit,
@@ -118,9 +118,9 @@ def set_replacements(view, edit, replacements):
     set_selection(view, selections)
 
 # SECTION: PURE FUNCTIONS THAT ARE USED TO MAP SELECTIONS
-def movement(traversal, forward, current):
-    if forward: return traversal.next(current).begin()
-    else: return traversal.prev(current).begin()
+def movement(movement, forward, current):
+    if forward: return movement.next(current)
+    else: return movement.prev(current)
 
 def completion(demarcation, forward, current):
     if forward: return sublime.Region(demarcation.prevbegin(current.begin()), demarcation.nextend(current.end())) 
@@ -168,7 +168,7 @@ def transposition(traversal, view, forward, current):
         bottom = view.substr(source)
         middle = view.substr(inbetween)
         offset = -destination.size()
-    if source.cover(destination).size() == source.size():
+    if source.intersects(destination):
         return Replacement(source, top, current)
     else:
         return Replacement(source.cover(destination), bottom+middle+top, offset_region(current, offset))
@@ -179,7 +179,8 @@ def demarcation(view, type):
         'subwords': lambda: SubWordDemarcation(view),
         'words': lambda: WordDemarcation(view),
         'separators': lambda: ListItemDemarcation(view),
-        'functions': lambda: PredefinedRegionDemarcation(list_defs(view) or list_blocks(view)),
+        'conditionals': lambda: ListItemDemarcation(view),
+        'functions': lambda: PredefinedRegionDemarcation(list_defs(view) or list_blocks(view)) if source(view) != 'c++' else CppFunctionDemarcation(view),
         'classes': lambda: PredefinedRegionDemarcation(list_class_defs(view) or list_blocks(view)),
     }[type]()
 
@@ -191,10 +192,11 @@ class Replacement:
 
 # SECTION: CATEGORIES THAT OPERATE ON GENERIC REGION DEMARCATIONS
 class RegionExpansion:
-    """A category of functions iterating through regions.
-    Given a categories for character traversal and region demarcation, 
-    a region traversal category exists. 
-    These required categeroies are defined later in the document"""
+    """A category of functions. Given a region, these functions return new regions 
+    with same starting point but different ending point.
+    The ending point of the return value is the ending position of a region.
+    Given a category for region demarcation, a region traversal category exists. 
+    These required categories are defined later in the document"""
     def __init__(self, region_demarcation):
         self.demarcation = region_demarcation
     def prev(self, region):
@@ -202,11 +204,23 @@ class RegionExpansion:
     def next(self, region):
         return sublime.Region( region.a, self.demarcation.prevbegin(self.demarcation.nextend(region.b+1)) )
 
+# SECTION: CATEGORIES THAT OPERATE ON GENERIC REGION DEMARCATIONS
+class RegionMovement:
+    """A category of functions that either advance forward to region ends, 
+    or behind to region beginnings.
+    Given a category for region demarcation, a region traversal category exists. 
+    These required categories are defined later in the document"""
+    def __init__(self, region_demarcation):
+        self.demarcation = region_demarcation
+    def prev(self, selection):
+        return self.demarcation.prevbegin(selection.begin()-1)
+    def next(self, selection):
+        return self.demarcation.nextend(selection.end()+1)
+
 class RegionTraversal:
     """A category of functions iterating through regions.
-    Given a categories for character traversal and region demarcation, 
-    a region traversal category exists. 
-    These required categeroies are defined later in the document"""
+    Given a category for region demarcation, a region traversal category exists. 
+    These required categories are defined later in the document"""
     def __init__(self, region_demarcation):
         self.demarcation = region_demarcation
     def prev(self, region):
@@ -286,10 +300,55 @@ class PredefinedRegionDemarcation:
     predefined regions, provided in the `regions` parameter."""
     def __init__(self, regions):
         self.regions = regions
+        self.first = min(region.begin() for region in self.regions)
+        self.last = max(region.end() for region in self.regions)
     def prevbegin(self, position):
-        return (region_b(self.regions, position) or first(self.regions)).begin()
+        return max([region.begin() for region in self.regions if region.begin() <= position] or [self.first]) 
     def nextend(self, position):
-        return (region_f(self.regions, position) or last(self.regions)).begin()
+        return min([region.begin() for region in self.regions if position < region.begin()] or [self.last])-1 
+
+class CppFunctionDemarcation:
+    """syntax highlighting for C++ is sufficiently complex in Sublime 
+    that it requires its own definitions for prevbegin() and nextend()"""
+    def __init__(self, view):
+        self.view = view
+        self.declaration_beginnings = list(delcaration.begin()
+            for delcaration in chain(*[view.find_by_selector('meta.method'), view.find_by_selector('meta.function')]))
+        self.brace_endings = list(brace.end() 
+            for brace in view.find_by_selector('punctuation.section.block'))
+        self.predeclaration_beginnings = list(predeclaration.begin()
+            for predeclaration in chain(*[
+                view.find_by_selector('meta.template'), 
+                view.find_by_selector('punctuation.definition.comment'),
+                view.find_by_selector('storage.type'),
+                view.find_by_selector('storage.modifier')
+            ]))
+    def prevbegin(self, position):
+        view = self.view
+        declaration = max([declaration 
+            for declaration in self.declaration_beginnings
+            if declaration <= position] 
+            or [min(self.declaration_beginnings or [position])])
+        previous_brace = max([ending
+            for ending in self.brace_endings
+            if ending < declaration] or [0])
+        predeclaration = min([predeclaration 
+            for predeclaration in self.predeclaration_beginnings
+            if previous_brace < predeclaration and predeclaration <= position] or [declaration]) 
+        return min([predeclaration, declaration])
+    def nextend(self, position):
+        view = self.view
+        braces = [ending 
+            for ending in self.brace_endings
+            if position <= ending]
+        nearest_valid_beginning = min([beginning 
+            for beginning in self.declaration_beginnings
+            if position < beginning
+            and [brace for brace in braces if brace < beginning]] 
+            or [view.size()-1])
+        return max([brace 
+            for brace in braces 
+            if brace < nearest_valid_beginning] or [position])
 
 
 
@@ -297,9 +356,8 @@ class PredefinedRegionDemarcation:
 # SECTION: FUNCTIONS THAT HELP CREATE PREDEFINED REGION TYPES (FUNCTIONS, CLASSES, ETC.)
 def list_func_defs(view):
     lang = source(view)
-    if lang in ('cs', 'java', 'cpp'):
+    if lang in ('cs', 'java'):
         return view.find_by_selector('meta.method.identifier')
-
     # Sublime doesn't think "function() {}" (mind no space) is a func definition.
     # It however thinks constructor and prototype have something to do with it.
     if lang == 'js':
@@ -308,7 +366,7 @@ def list_func_defs(view):
         func_def = r'([\t ]*(?:\w+ *:|(?:(?:var|let|const) +)?[\w.]+ *=) *)?\bfunction\b'
         raw_funcs = view.find_all(func_def)
         is_junk = lambda r: is_escaped(view, r.a)
-        funcs = lremove(is_junk, raw_funcs)
+        funcs = lremove(is_junk, raw_funcs) 
         return funcs + view.find_by_selector('meta.class-method')
 
     funcs = view.find_by_selector('meta.function')
@@ -348,11 +406,13 @@ def list_separator_defs(view):
         # 'punctuation.section.brackets',
         # 'punctuation.section.parameters',
 
-        'punctuation.section.arguments',
-        'punctuation.section.sequence',
-        'punctuation.section.target-list',
-        'punctuation.section.mapping',
-        'punctuation.section.set',
+        # 'punctuation.section.arguments',
+        # 'punctuation.section.sequence',
+        # 'punctuation.section.target-list',
+        # 'punctuation.section.mapping',
+        # 'punctuation.section.set',
+        'keyword.control',
+        'punctuation.terminator',
 
         # 'punctuation.separator.parameters',
         # 'punctuation.separator.sequence',
