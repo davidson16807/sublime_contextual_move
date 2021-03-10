@@ -167,7 +167,7 @@ def transposition(traversal, view, forward, current):
         top = view.substr(destination)
         bottom = view.substr(source)
         middle = view.substr(inbetween)
-        offset = -destination.size()
+        offset = -destination.size() - inbetween.size()
     if source.intersects(destination):
         return Replacement(source, top, current)
     else:
@@ -175,12 +175,17 @@ def transposition(traversal, view, forward, current):
 
 # SECTION: MISCELLANEOUS FUNCTIONS AND STRUCTURES THAT ARE USED TO COMPOSE COMMANDS
 def demarcation(view, type):
+    language = source(view)
+    functions = {
+        'c++': lambda: CppFunctionDemarcation(view),
+        'python': lambda: PythonFunctionDemarcation(view),
+    }
     return {
         'subwords': lambda: SubWordDemarcation(view),
         'words': lambda: WordDemarcation(view),
         'separators': lambda: ListItemDemarcation(view),
         'conditionals': lambda: ListItemDemarcation(view),
-        'functions': lambda: PredefinedRegionDemarcation(list_defs(view) or list_blocks(view)) if source(view) != 'c++' else CppFunctionDemarcation(view),
+        'functions': lambda: functions[language]() if language in functions else PredefinedRegionDemarcation(list_defs(view) or list_blocks(view)),
         'classes': lambda: PredefinedRegionDemarcation(list_class_defs(view) or list_blocks(view)),
     }[type]()
 
@@ -281,20 +286,6 @@ class WordDemarcation:
             # sublime.CLASS_EMPTY_LINE
         )
 
-class ListItemDemarcation:
-    """a category of functions mapping positions to region boundaries,
-    effectively providing the definition of a region"""
-    def __init__(self, view):
-        self.view = view
-    def prevbegin(self, position):
-        regions = list_separator_defs(self.view)
-        target = region_b(regions, position) or first(regions)
-        return target.begin() 
-    def nextend(self, position):
-        regions = list_separator_defs(self.view)
-        target = region_f(regions, position) or last(regions)
-        return target.end()
-    
 class PredefinedRegionDemarcation:
     """a category of functions mapping positions to boundaries of
     predefined regions, provided in the `regions` parameter."""
@@ -310,19 +301,6 @@ class PredefinedRegionDemarcation:
 class CppFunctionDemarcation:
     """syntax highlighting for C++ is sufficiently complex in Sublime 
     that it requires its own definitions for prevbegin() and nextend()"""
-    def __init__(self, view):
-        self.view = view
-        self.declaration_beginnings = list(delcaration.begin()
-            for delcaration in chain(*[view.find_by_selector('meta.method'), view.find_by_selector('meta.function')]))
-        self.brace_endings = list(brace.end() 
-            for brace in view.find_by_selector('punctuation.section.block'))
-        self.predeclaration_beginnings = list(predeclaration.begin()
-            for predeclaration in chain(*[
-                view.find_by_selector('meta.template'), 
-                view.find_by_selector('punctuation.definition.comment'),
-                view.find_by_selector('storage.type'),
-                view.find_by_selector('storage.modifier')
-            ]))
     def prevbegin(self, position):
         view = self.view
         declaration = max([declaration 
@@ -336,6 +314,19 @@ class CppFunctionDemarcation:
             for predeclaration in self.predeclaration_beginnings
             if previous_brace < predeclaration and predeclaration <= position] or [declaration]) 
         return min([predeclaration, declaration])
+    def __init__(self, view):
+        self.view = view
+        self.declaration_beginnings = list(declaration.begin()
+            for declaration in chain(*[view.find_by_selector('meta.method'), view.find_by_selector('meta.function')]))
+        self.brace_endings = list(brace.end() 
+            for brace in view.find_by_selector('punctuation.section.block'))
+        self.predeclaration_beginnings = list(predeclaration.begin()
+            for predeclaration in chain(*[
+                view.find_by_selector('meta.template'), 
+                view.find_by_selector('punctuation.definition.comment'),
+                view.find_by_selector('storage.type'),
+                view.find_by_selector('storage.modifier')
+            ]))
     def nextend(self, position):
         view = self.view
         braces = [ending 
@@ -349,6 +340,41 @@ class CppFunctionDemarcation:
         return max([brace 
             for brace in braces 
             if brace < nearest_valid_beginning] or [position])
+
+
+class PythonFunctionDemarcation:
+    def __init__(self, view):
+        self.view = view
+        funcs = view.find_by_selector('meta.function')
+        is_junk = lambda region: re_test(r'^(lambda|\s*\@)', view.substr(region))
+        self.declaration_beginnings = list(declaration.begin()
+            for declaration in view.find_by_selector('meta.function')
+            if not is_junk(declaration))
+    def prevbegin(self, position):
+        view = self.view
+        return max([declaration 
+            for declaration in self.declaration_beginnings
+            if declaration <= position]
+            or [min(self.declaration_beginnings or [position])])
+    def nextend(self, position):
+        view = self.view
+        tab_size = view.settings().get('tab_size', 4)
+        def indent_length(line_region):
+            line_text = view.substr(line_region)
+            indentation = re.search(r'^\s*', line_text).group() or ''
+            indent_length_ = indentation.count('\t')*tab_size + indentation.count(' ')
+            return indent_length_
+        endings = [
+            max([line.end()
+                 for line in view.lines(sublime.Region(position, declaration))
+                 if  indent_length(view.line(declaration)) < indent_length(line)]
+                 or [view.size() -1])
+            for declaration in chain(self.declaration_beginnings, [view.size()-1])
+            if position < declaration
+        ]
+        return min([ending
+            for ending in endings
+            if position < ending])
 
 
 
@@ -368,12 +394,7 @@ def list_func_defs(view):
         is_junk = lambda r: is_escaped(view, r.a)
         funcs = lremove(is_junk, raw_funcs) 
         return funcs + view.find_by_selector('meta.class-method')
-
-    funcs = view.find_by_selector('meta.function')
-    if lang == 'python':
-        is_junk = lambda r: re_test(r'^(lambda|\s*\@)', view.substr(r))
-        funcs = lremove(is_junk, funcs)
-    return funcs
+    return view.find_by_selector('meta.function')
 
 def list_class_defs(view):
     lang = source(view)
