@@ -214,6 +214,7 @@
 			"conditionals": { "command": "move_by_scope", "args": {"forward": true, "by": "conditionals", "delete": true, "complete": false}},
 			"functions": { "command": "move_by_scope", "args": {"forward": true, "by": "functions", "delete": true, "complete": false}},
 			"classes": { "command": "move_by_scope", "args": {"forward": true, "by": "classes", "delete": true}},
+			"tabs": { "command": "close_right", },
 			"default_to_end": { "command": "run_macro_file", "args": {"file": "res://Packages/ContextualMove/Delete to EOL.sublime-macro"} },
 		}	
 	},
