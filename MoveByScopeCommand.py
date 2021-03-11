@@ -177,11 +177,15 @@ def transposition(traversal, view, forward, current):
 def demarcation(view, type):
     language = source(view)
     functions = {
-        'python': lambda: PythonFunctionDemarcation(view),
-        'c++': lambda: CLikeFunctionDemarcation(
+        'python': lambda: PythonScopeDemarcation(view, 
+                [declaration.begin()
+                    for declaration in view.find_by_selector('meta.function')
+                    if not re_test(r'^(lambda|\s*\@)', view.substr(declaration))]
+            ),
+        'c++': lambda: CLikeScopeDemarcation(
                 view.size(),
                 chain(view.find_by_selector('meta.method'), view.find_by_selector('meta.function')),
-                view.find_by_selector('punctuation.section.block'),
+                view.find_by_selector('punctuation.section.block.end'),
                 chain(
                     view.find_by_selector('meta.template'), 
                     view.find_by_selector('punctuation.definition.comment'),
@@ -189,37 +193,117 @@ def demarcation(view, type):
                     view.find_by_selector('storage.modifier')
                 )
             ),
-        'js': lambda: CLikeFunctionDemarcation(
+        'c': lambda: CLikeScopeDemarcation(
+                view.size(),
+                view.find_by_selector('meta.function'),
+                view.find_by_selector('punctuation.section.block.end'),
+                chain(
+                    view.find_by_selector('punctuation.definition.comment'),
+                    view.find_by_selector('storage.type'),
+                    view.find_by_selector('storage.modifier')
+                )
+            ),
+        'js': lambda: CLikeScopeDemarcation(
                 view.size(),
                 [beginning
                     for beginning in chain(
                         view.find_all(r'([\t ]*(?:\w+ *:|(?:(?:var|let|const) +)?[\w.]+ *=) *)?\bfunction\b'), 
                         view.find_by_selector('meta.class-method'))
                     if not is_escaped(view, beginning.a)],
-                view.find_by_selector('punctuation.section.block'),
+                view.find_by_selector('punctuation.section.block.end'),
                 view.find_by_selector('punctuation.definition.comment')
             ),
-        'java': PredefinedRegionDemarcation(
-            order_regions(view.find_by_selector('meta.method.identifier') + view.find_by_selector('meta.class.identifier')) 
-            or list_blocks(view)),
-        'cs': PredefinedRegionDemarcation(
-            order_regions(view.find_by_selector('meta.method.identifier') + view.find_by_selector('meta.class.identifier')) 
-            or list_blocks(view)),
+        'r': lambda: CLikeScopeDemarcation(
+                view.size(),
+                [beginning
+                    for beginning in view.find_all(r'([\t ]*(?:\w+ *:|(?: +)?[\w.]+ *=) *)?\bfunction\b')
+                    if not is_escaped(view, beginning.a)],
+                view.find_by_selector('punctuation.section.braces.end'),
+                view.find_by_selector('punctuation.definition.comment')
+            ),
+        'java': lambda: CLikeScopeDemarcation(
+                view.size(),
+                chain(view.find_by_selector('meta.method'), view.find_by_selector('meta.function')),
+                view.find_by_selector('punctuation.section.block.end'),
+                chain(
+                    view.find_by_selector('punctuation.definition.comment'),
+                    view.find_by_selector('storage.type'),
+                    view.find_by_selector('storage.modifier')
+                )
+            ),
+        'cs': lambda: CLikeScopeDemarcation(
+                view.size(),
+                chain(view.find_by_selector('meta.method'), view.find_by_selector('meta.function')),
+                view.find_by_selector('punctuation.section.block.end'),
+                chain(
+                    view.find_by_selector('punctuation.definition.comment'),
+                    view.find_by_selector('storage.type'),
+                    view.find_by_selector('storage.modifier')
+                )
+            ),
+        'clike': lambda: CLikeScopeDemarcation(
+                view.size(),
+                chain(view.find_by_selector('meta.method'), view.find_by_selector('meta.function')),
+                chain(view.find_by_selector('punctuation.section.block.end'), view.find_by_selector('punctuation.section.braces.end')),
+                chain(
+                    view.find_by_selector('punctuation.definition.comment'),
+                    view.find_by_selector('storage.type'),
+                    view.find_by_selector('storage.modifier')
+                )
+            ),
+        'fortran': lambda: CLikeScopeDemarcation(
+                view.size(),
+                view.find_all(r'\bsubroutine\b'),
+                view.find_all(r'\bend subroutine\b'),
+                view.find_by_selector('punctuation.definition.comment')
+            ),
+    }
+    classes = {
+        'python': lambda: PythonScopeDemarcation(view, view.find_by_selector('meta.class')), 
+        'c++': lambda: CLikeScopeDemarcation(
+                view.size(),
+                chain(
+                    view.find_by_selector('meta.class'), 
+                    view.find_by_selector('meta.struct'), 
+                    view.find_by_selector('meta.enum')
+                ),
+                view.find_by_selector('punctuation.section.block.end'),
+                chain(
+                    view.find_by_selector('meta.template'), 
+                    view.find_by_selector('punctuation.definition.comment')
+                )
+            ),
+        'clike': lambda: CLikeScopeDemarcation(
+                view.size(),
+                chain(
+                    view.find_by_selector('meta.class'), 
+                    view.find_by_selector('meta.class.identifier'), 
+                    view.find_by_selector('meta.struct'), 
+                    view.find_by_selector('meta.enum')
+                ),
+                view.find_by_selector('punctuation.section.block.end'),
+                chain(
+                    view.find_by_selector('punctuation.definition.comment')
+                )
+            ),
+        'fortran': lambda: CLikeScopeDemarcation(
+                view.size(),
+                view.find_all(r'\bmodule\b'),
+                view.find_all(r'\bend module\b'),
+                view.find_by_selector('punctuation.definition.comment')
+            ),
     }
     return {
         'subwords': lambda: SubWordDemarcation(view),
         'words': lambda: WordDemarcation(view),
-        'separators': lambda: ListItemDemarcation(view),
+        'listitems': lambda: ListItemDemarcation(view),
         'conditionals': lambda: ListItemDemarcation(view),
-        'functions': lambda: functions[language]() if language in functions 
-            else PredefinedRegionDemarcation(
-                order_regions(view.find_by_selector('meta.class') + view.find_by_selector('meta.method.identifier')) 
-                or list_blocks(view)),
-        'classes': lambda: PredefinedRegionDemarcation(list_class_defs(view) or list_blocks(view)),
+        'functions': lambda: functions[language]() if language in functions else functions['clike'](),
+        'classes': lambda: classes[language]() if language in classes else classes['clike'](),
     }[type]()
 
 class Replacement:
-    def __init__(self, region, text, selection):
+    def __init__(self, region, text, selection): 
         self.region = region
         self.text = text
         self.selection = selection
@@ -271,7 +355,7 @@ class SubWordDemarcation:
     """a category of functions mapping positions to region boundaries,
     effectively providing the definition of a region"""
     def __init__(self, view):
-        pass
+        self.view = view
     def prevbegin(self, position):
         return self.view.find_by_class(position, False, 
             sublime.CLASS_SUB_WORD_START | 
@@ -280,7 +364,7 @@ class SubWordDemarcation:
             sublime.CLASS_PUNCTUATION_END | 
             sublime.CLASS_LINE_END | 
             sublime.CLASS_EMPTY_LINE
-        )
+    )
     def nextend(self, position):
         return self.view.find_by_class(position, True, 
             sublime.CLASS_SUB_WORD_START | 
@@ -327,7 +411,7 @@ class PredefinedRegionDemarcation:
     def nextend(self, position):
         return min([region.begin() for region in self.regions if position < region.begin()] or [self.last])-1 
 
-class CLikeFunctionDemarcation:
+class CLikeScopeDemarcation:
     """a category of functions mapping positions to boundaries for functions within c-like langauges,
     effectively providing the definition for functions within these languages.
     Starting boundaries include "predeclarations" such as comments and template constructs, 
@@ -363,14 +447,10 @@ class CLikeFunctionDemarcation:
             if previous_brace < predeclaration and predeclaration <= position] or [declaration]) 
         return min([predeclaration, declaration])
 
-class PythonFunctionDemarcation:
-    def __init__(self, view):
+class PythonScopeDemarcation:
+    def __init__(self, view, declarations):
         self.view = view
-        funcs = view.find_by_selector('meta.function')
-        is_junk = lambda region: re_test(r'^(lambda|\s*\@)', view.substr(region))
-        self.declaration_beginnings = list(declaration.begin()
-            for declaration in view.find_by_selector('meta.function')
-            if not is_junk(declaration))
+        self.declaration_beginnings = declarations 
     def prevbegin(self, position):
         view = self.view
         return max([declaration 
