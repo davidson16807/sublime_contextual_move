@@ -13,10 +13,8 @@ from itertools import takewhile, chain
 
 try:
     from .funcy import *
-    from .viewtools import *
 except ValueError: # HACK: for ST2 compatability
     from funcy import * 
-    from viewtools import *
 
 '''
 NOTE: Our design goal is to commute the diagram in "CATEGORY.png" using our implementation.
@@ -399,18 +397,6 @@ class WordDemarcation:
             # sublime.CLASS_EMPTY_LINE
         )
 
-class PredefinedRegionDemarcation:
-    """a category of functions mapping positions to boundaries of
-    predefined regions, provided in the `regions` parameter."""
-    def __init__(self, regions):
-        self.regions = regions
-        self.first = min(region.begin() for region in self.regions)
-        self.last = max(region.end() for region in self.regions)
-    def prevbegin(self, position):
-        return max([region.begin() for region in self.regions if region.begin() <= position] or [self.first]) 
-    def nextend(self, position):
-        return min([region.begin() for region in self.regions if position < region.begin()] or [self.last])-1 
-
 class CLikeScopeDemarcation:
     """a category of functions mapping positions to boundaries for functions within c-like langauges,
     effectively providing the definition for functions within these languages.
@@ -480,40 +466,6 @@ class PythonScopeDemarcation:
 
 
 
-# SECTION: FUNCTIONS THAT HELP CREATE PREDEFINED REGION TYPES (FUNCTIONS, CLASSES, ETC.)
-def list_separator_defs(view):
-    selectors = [
-        # 'punctuation.definition.generic.begin', 'punctuation.definition.generic.end',
-        # 'punctuation.section.block',
-        # 'punctuation.section.block',
-        # 'punctuation.section.braces',
-        # 'punctuation.section.group',
-        # 'punctuation.section.parens',
-        # 'punctuation.section.brackets',
-        # 'punctuation.section.parameters',
-
-        # 'punctuation.section.arguments',
-        # 'punctuation.section.sequence',
-        # 'punctuation.section.target-list',
-        # 'punctuation.section.mapping',
-        # 'punctuation.section.set',
-        'keyword.control',
-        'punctuation.terminator',
-
-        # 'punctuation.separator.parameters',
-        # 'punctuation.separator.sequence',
-        # 'punctuation.separator.arguments',
-        # 'punctuation.separator.target-list',
-        # 'punctuation.separator.mapping',
-        # 'punctuation.separator.set',
-    ]
-    return order_regions(chain(*[view.find_by_selector(selector) for selector in selectors]))
-    # return invert_regions(view, order_regions(chain(*[view.find_by_selector(selector) for selector in selectors])))
-
-def list_blocks(view):
-    empty_lines = view.find_all(r'^\s*\n')
-    return invert_regions(view, empty_lines)
-
 # SECTION: FUNCTIONS THAT HELP WORK WITH PREDEFINED REGION TYPES (FUNCTIONS, CLASSES, ETC.)
 def offset_region(region, offset):
     return sublime.Region(region.a + offset, region.b + offset)
@@ -540,4 +492,24 @@ def invert_regions(view, regions):
     return result
 
 
+def cursor_pos(view):
+    return view.sel()[0].b
 
+### Scope
+def scope_name(view, pos=None):
+    if pos is None:
+        pos = cursor_pos(view)
+    return view.scope_name(pos)
+
+def parsed_scope(view, pos=None):
+    return parse_scope(scope_name(view, pos))
+
+def source(view, pos=None):
+    return first(vec[1] for vec in parsed_scope(view, pos) if vec[0] == 'source')
+
+def parse_scope(scope_name):
+    return [name.split('.') for name in scope_name.split()]
+
+def is_escaped(view, pos):
+    return any(s[0] in ('comment', 'string') for s in parsed_scope(view, pos))
+    
