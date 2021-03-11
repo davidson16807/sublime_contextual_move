@@ -176,7 +176,7 @@ def demarcation(view, type):
     language = source(view)
     functions = {
         'python': lambda: PythonScopeDemarcation(view, 
-                [declaration.begin()
+                [declaration
                     for declaration in view.find_by_selector('meta.function')
                     if not re_test(r'^(lambda|\s*\@)', view.substr(declaration))]
             ),
@@ -398,6 +398,28 @@ class WordDemarcation:
             # sublime.CLASS_EMPTY_LINE
         )
 
+class ListItemDemarcation:
+    """a category of functions mapping positions to region boundaries,
+    effectively providing the definition of a region"""
+    def __init__(self, view):
+        self.view = view
+    def prevbegin(self, position):
+        return max([delimiter.end()
+            for delimiter in self.view.find_all(r'[,([{]\s*')
+            if delimiter.end() <= position
+            # NOTE: the line below can be used to match complex list items with parens and bracks, 
+            # but results do not feel very predictable to the user
+            # and braces_match(self.view.substr(sublime.Region(position, delimiter.begin())))
+        ] or [position])
+    def nextend(self, position):
+        return min([delimiter.begin()
+            for delimiter in self.view.find_all(r'[,)}]')
+            if position <= delimiter.begin()
+            # NOTE: the line below can be used to match complex list items with parens and bracks, 
+            # but results do not feel very predictable to the user
+            # and braces_match(self.view.substr(sublime.Region(position, delimiter.begin())))
+        ] or [position])
+
 class CLikeScopeDemarcation:
     """a category of functions mapping positions to boundaries for functions within c-like langauges,
     effectively providing the definition for functions within these languages.
@@ -513,4 +535,6 @@ def parse_scope(scope_name):
 
 def is_escaped(view, pos):
     return any(s[0] in ('comment', 'string') for s in parsed_scope(view, pos))
-    
+
+def braces_match(text):
+    return text.count('(') == text.count(')') and text.count('[') == text.count(']') and text.count('{') == text.count('}')

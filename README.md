@@ -1,11 +1,11 @@
 # Sublime Contexual Move Keys
-`Ctrl+IJKL` to move. Other keys toggle move behavior. You can move across characters, words, search results, tabs, and more.
+`Ctrl+IJKL` to move. Other keys toggle move behavior. You can move across characters, words, search results, tabs, arguments, functions, and more.
 
 ## The Gist
 * `Ctrl+IJKL` are contextual arrow keys. By default, they move the cursor one character at a time. 
 * `Ctrl+Shift+IJKL` will extend the selection. 
 * `Ctrl+Alt+IJKL` will delete text ("**alter** it").
-* `Ctrl+Alt+Shift+IJKL` will move text (**alter** by **shifting** it). 
+* `Ctrl+Alt+Shift+IJKL` will move text ("**alter** by **shifting** around"). 
 * `Alt+JL` will undo/redo changes to text.
 * If you open the command palette or an autocomplete dropdown, they'll move through the options just like regular arrow keys. 
 * If you open the search panel, they'll move between search results. 
@@ -16,9 +16,10 @@ Hotkey|Move Behavior|Mneumonic
 `Ctrl+.`| Move one character or line at a time | `.` denotes characters in regex
 `Ctrl+_`| Move by subwords | `_` delimits subwords in C-like languages
 `Ctrl+,`| Move by words | `,` delimits words in natural language (`Ctrl+spacebar` is already taken)
-<!-- `Ctrl+1`| Move through comma separated list items | grammar rules are mapped to numbers, sorted by precedence -->
+`Ctrl+1`| Move through comma separated list items | grammar rules are mapped to numbers, sorted by precedence
 <!-- `Ctrl+2`| Move through statements | grammar rules are mapped to numbers, sorted by precedence -->
-`Ctrl+1`| Move through functions | grammar rules are mapped to numbers, sorted by precedence
+`Ctrl+2`| Move through functions | grammar rules are mapped to numbers, sorted by precedence
+`Ctrl+3`| Move through classes | grammar rules are mapped to numbers, sorted by precedence
 `Ctrl++`| Move through pages and tabs | `+` looks like the cursor you get when you click the middle mouse button (`Ctrl+tab` is already taken)
 `Ctrl+pipe`| Add cursors to adjacent lines. Press escape to return to a single selection and retrn to default behavior | The "pipe" character looks like a cursor
 `Ctrl+[`| fold/unfold | Resembles existing shortcut
@@ -32,6 +33,8 @@ Hotkey|Move Behavior|Mneumonic
 ** pressing `Ctrl+1`, `Ctrl+;`, `Ctrl+Alt+L` will delete everything to the end of a comma separated list 
 ** pressing `Ctrl+2` followed by any combination of `Ctrl+Alt+Shift+IK` will change the order of functions in the document.
 ** pressing `Ctrl++`, followed by any combination of `Ctrl+Alt+JL` will close tabs.
+
+* Most obvious combinations are already supported. You can see a full list of implemented features [here](https://github.com/davidson16807/sublime_contextual_move/blob/master/ROADMAP.png?raw=true)
 
 ## FAQ
 

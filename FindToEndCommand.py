@@ -4,7 +4,7 @@
 import sublime, sublime_plugin, re
 
 
-class FindExtremumCommand(sublime_plugin.WindowCommand):
+class FindToEndCommand(sublime_plugin.WindowCommand):
     def run(self, forward):
     	for i in range(0, 1000):
     		self.window.run_command('find_next' if forward else 'find_prev')

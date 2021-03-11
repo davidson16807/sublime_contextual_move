@@ -41,10 +41,15 @@
 	{ "keys": ["ctrl+alt+]"], "command": "set_move_context", "args": {"value": "lines"} },
 	{ "keys": ["ctrl+shift+]"], "command": "set_move_context", "args": {"value": "lines"} },
 
-	{ "keys": ["ctrl+1"], "command": "set_move_context", "args": {"value": "separators"} },
-	{ "keys": ["ctrl+shift+alt+1"], "command": "set_move_context", "args": {"value": "separators"} },
-	{ "keys": ["ctrl+alt+1"], "command": "set_move_context", "args": {"value": "separators"} },
-	{ "keys": ["ctrl+shift+1"], "command": "set_move_context", "args": {"value": "separators"} },
+	// { "keys": ["ctrl+1"], "command": "set_move_context", "args": {"value": "conditionals"} },
+	// { "keys": ["ctrl+shift+alt+1"], "command": "set_move_context", "args": {"value": "conditionals"} },
+	// { "keys": ["ctrl+alt+1"], "command": "set_move_context", "args": {"value": "conditionals"} },
+	// { "keys": ["ctrl+shift+1"], "command": "set_move_context", "args": {"value": "conditionals"} },
+
+	{ "keys": ["ctrl+1"], "command": "set_move_context", "args": {"value": "listitems"} },
+	{ "keys": ["ctrl+shift+alt+1"], "command": "set_move_context", "args": {"value": "listitems"} },
+	{ "keys": ["ctrl+alt+1"], "command": "set_move_context", "args": {"value": "listitems"} },
+	{ "keys": ["ctrl+shift+1"], "command": "set_move_context", "args": {"value": "listitems"} },
 
 	{ "keys": ["ctrl+2"], "command": "set_move_context", "args": {"value": "functions"} },
 	{ "keys": ["ctrl+shift+alt+2"], "command": "set_move_context", "args": {"value": "functions"} },
@@ -108,7 +113,8 @@
 			"subwords": { "command": "move", "args": {"by": "subwords", "forward": false } },
 			"words": { "command": "move", "args": {"by": "words", "forward": false} },
 			"lines": { "command": "move_to", "args": {"to": "bol", "extend": false} },
-			"separators": { "command": "move_by_scope", "args": {"forward": false, "by": "separators", "expand": false}},
+			"listitems": { "command": "move_by_scope", "args": {"forward": false, "by": "listitems", "expand": false}},
+			"conditionals": { "command": "move_by_scope", "args": {"forward": false, "by": "conditionals", "expand": false}},
 			"functions": { "command": "move_by_scope", "args": {"forward": false, "by": "functions", "expand": false}},
 			"classes": { "command": "move_by_scope", "args": {"forward": false, "by": "classes", "expand": false}},
 			"tabs": { "command": "prev_view", },
@@ -123,7 +129,8 @@
 			"subwords": { "command": "move", "args": {"by": "subwords", "forward": false, "extend": true} },
 			"words": { "command": "move", "args": {"by": "words", "forward": false, "extend": true} },
 			"lines": { "command": "move_to", "args": {"to": "bol", "extend": true} },
-			"separators": { "command": "move_by_scope", "args": {"forward": false, "by": "separators", "expand": true, "complete": false}},
+			"listitems": { "command": "move_by_scope", "args": {"forward": false, "by": "listitems", "expand": true, "complete": false}},
+			"conditionals": { "command": "move_by_scope", "args": {"forward": false, "by": "conditionals", "expand": true, "complete": false}},
 			"functions": { "command": "move_by_scope", "args": {"forward": false, "by": "functions", "expand": true, "complete": false}},
 			"classes": { "command": "move_by_scope", "args": {"forward": false, "by": "classes", "expand": true, "complete": false}},
 			"tabs": { "command": "prev_view", },
@@ -136,7 +143,8 @@
 			"subwords": { "command": "run_macro_file", "args": {"file": "res://Packages/ContextualMove/Delete Subword Before.sublime-macro"} },
 			"words": { "command": "delete_word", "args": { "forward": false} },
 			"lines": { "command": "run_macro_file", "args": {"file": "res://Packages/ContextualMove/Delete to BOL.sublime-macro"} },
-			"separators": { "command": "move_by_scope", "args": {"forward": false, "by": "separators", "delete": true, "complete": false}},
+			"listitems": { "command": "move_by_scope", "args": {"forward": false, "by": "listitems", "delete": true, "complete": false}},
+			"conditionals": { "command": "move_by_scope", "args": {"forward": false, "by": "conditionals", "delete": true, "complete": false}},
 			"functions": { "command": "move_by_scope", "args": {"forward": false, "by": "functions", "delete": true, "complete": false}},
 			"classes": { "command": "move_by_scope", "args": {"forward": false, "by": "classes", "delete": true}},
 			"tabs": { "command": "close", },
@@ -146,9 +154,10 @@
 	{ "keys": ["ctrl+shift+alt+j"], "command": "contextual_move",
 		"args": {
 			"default": { "command": "unindent"},
-			"subwords": { "command": "transpose_by", "args": {"forward": false, "by":"subwords"} },
-			"words": { "command": "transpose_by", "args": {"forward": false, "by":"words"} },
-			"separators": { "command":"transpose_by", "args": {"forward": false, "by":"separators"} },
+			"subwords": { "command": "transpose_by_scope", "args": {"forward": false, "by":"subwords"} },
+			"words": { "command": "transpose_by_scope", "args": {"forward": false, "by":"words"} },
+			"listitems": { "command":"transpose_by_scope", "args": {"forward": false, "by":"listitems"} },
+			"conditionals": { "command":"transpose_by_scope", "args": {"forward": false, "by":"conditionals"} },
 			"functions": { "command": "indent_scope", "args": {"forward": false, "by":"functions"} },
 			"classes": { "command": "indent_scope", "args": {"forward": false, "by":"classes"} },
 			"tabs": { "command": "transpose_tab", "args": { "position": "-1" } },
@@ -157,9 +166,9 @@
 	},
 	// { "keys": ["ctrl+shift+alt+j"], "command": "contextual_move",
 	// 	"args": {
-	// 		"default": { "command": "transpose_by", "args": {"forward": false, "by":"characters"} },
-	// 		"subwords": { "command": "transpose_by", "args": {"forward": false, "by":"subwords"} },
-	// 		"words": { "command": "transpose_by", "args": {"forward": false, "by":"words"} },
+	// 		"default": { "command": "transpose_by_scope", "args": {"forward": false, "by":"characters"} },
+	// 		"subwords": { "command": "transpose_by_scope", "args": {"forward": false, "by":"subwords"} },
+	// 		"words": { "command": "transpose_by_scope", "args": {"forward": false, "by":"words"} },
 	// 		"tabs": { "command": "transpose_tab", "args": { "position": "-1" } },
 	// 		"tabs_to_end": { "command": "transpose_tab", "args": { "position": "0" } },
 	// 	},
@@ -176,7 +185,8 @@
 			"subwords": { "command": "move", "args": {"by": "subword_ends", "forward": true} },
 			"words": { "command": "move", "args": {"by": "word_ends", "forward": true} },
 			"lines": { "command": "move_to", "args": {"to": "eol", "extend": false} },
-			"separators": { "command": "move_by_scope", "args": {"forward": true, "by": "separators", "expand": false}},
+			"listitems": { "command": "move_by_scope", "args": {"forward": true, "by": "listitems", "expand": false}},
+			"conditionals": { "command": "move_by_scope", "args": {"forward": true, "by": "conditionals", "expand": false}},
 			"functions": { "command": "move_by_scope", "args": {"forward": true, "by": "functions", "expand": false}},
 			"classes": { "command": "move_by_scope", "args": {"forward": true, "by": "classes", "expand": false}},
 			"tabs": { "command": "next_view", },
@@ -191,7 +201,8 @@
 			"subwords": { "command": "move", "args": {"by": "subword_ends", "forward": true, "extend": true} },
 			"words": { "command": "move", "args": {"by": "word_ends", "forward": true, "extend": true} },
 			"lines": { "command": "move_to", "args": {"to": "eol", "extend": true} },
-			"separators": { "command": "move_by_scope", "args": {"forward": true, "by": "separators", "expand": true, "complete": false}},
+			"listitems": { "command": "move_by_scope", "args": {"forward": true, "by": "listitems", "expand": true, "complete": false}},
+			"conditionals": { "command": "move_by_scope", "args": {"forward": true, "by": "conditionals", "expand": true, "complete": false}},
 			"functions": { "command": "move_by_scope", "args": {"forward": true, "by": "functions", "expand": true, "complete": false}},
 			"classes": { "command": "move_by_scope", "args": {"forward": true, "by": "classes", "expand": true, "complete": false}},
 			"tabs": { "command": "next_view", },
@@ -204,18 +215,21 @@
 			"subwords": { "command": "run_macro_file", "args": {"file": "res://Packages/ContextualMove/Delete Subword.sublime-macro"} },
 			"words": { "command": "delete_word", "args": { "forward": true} },
 			"lines": { "command": "run_macro_file", "args": {"file": "res://Packages/ContextualMove/Delete to EOL.sublime-macro"} },
-			"separators": { "command": "move_by_scope", "args": {"forward": true, "by": "separators", "delete": true, "complete": false}},
+			"listitems": { "command": "move_by_scope", "args": {"forward": true, "by": "listitems", "delete": true, "complete": false}},
+			"conditionals": { "command": "move_by_scope", "args": {"forward": true, "by": "conditionals", "delete": true, "complete": false}},
 			"functions": { "command": "move_by_scope", "args": {"forward": true, "by": "functions", "delete": true, "complete": false}},
 			"classes": { "command": "move_by_scope", "args": {"forward": true, "by": "classes", "delete": true}},
+			"tabs": { "command": "close_right", },
 			"default_to_end": { "command": "run_macro_file", "args": {"file": "res://Packages/ContextualMove/Delete to EOL.sublime-macro"} },
 		}	
 	},
 	{ "keys": ["ctrl+shift+alt+l"], "command": "contextual_move",
 		"args": {
 			"default": { "command": "indent", },
-			"subwords": { "command": "transpose_by", "args": {"forward": true, "by":"subwords"} },
-			"words": { "command": "transpose_by", "args": {"forward": true, "by":"words"} },
-			"separators": { "command": "transpose_by", "args": {"forward": true, "by":"separators"} },
+			"subwords": { "command": "transpose_by_scope", "args": {"forward": true, "by":"subwords"} },
+			"words": { "command": "transpose_by_scope", "args": {"forward": true, "by":"words"} },
+			"listitems": { "command": "transpose_by_scope", "args": {"forward": true, "by":"listitems"} },
+			"conditionals": { "command": "transpose_by_scope", "args": {"forward": true, "by":"conditionals"} },
 			"functions": { "command": "indent_scope", "args": {"forward": true, "by":"functions"} },
 			"classes": { "command": "indent_scope", "args": {"forward": true, "by":"classes"} },
 			"tabs": { "command": "transpose_tab", "args": { "position": "+1" } },
@@ -224,9 +238,9 @@
 	},
 	// { "keys": ["ctrl+shift+alt+l"], "command": "contextual_move",
 	// 	"args": {
-	// 		"default": { "command": "transpose_by", "args": {"forward": true, "by":"characters"} },
-	// 		"subwords": { "command": "transpose_by", "args": {"forward": true, "by":"subwords"} },
-	// 		"words": { "command": "transpose_by", "args": {"forward": true, "by":"words"} },
+	// 		"default": { "command": "transpose_by_scope", "args": {"forward": true, "by":"characters"} },
+	// 		"subwords": { "command": "transpose_by_scope", "args": {"forward": true, "by":"subwords"} },
+	// 		"words": { "command": "transpose_by_scope", "args": {"forward": true, "by":"words"} },
 	// 		"tabs": { "command": "transpose_tab", "args": { "position": "+1" } },
 	// 		"tabs_to_end": { "command": "transpose_tab", "args": { "position": "999" } },
 	// 	},
@@ -247,7 +261,7 @@
 	{ "keys": ["ctrl+i"], "command": "contextual_move", 
 		"args": {
 			"default": { "command": "move", "args": {"by": "lines", "forward": false} },
-			"lines": { "command": "move", "args": {"by": "lines", "forward": false} },
+			"conditionals": { "command": "move_by_scope", "args": {"forward": false, "by": "conditionals"}},
 			"functions": { "command": "move_by_scope", "args": {"forward": false, "by": "functions"}},
 			"classes": { "command": "move_by_scope", "args": {"forward": false, "by": "classes"}},
 			
@@ -255,6 +269,7 @@
 			"functions_to_end": { "command": "move_by_scope", "args": {"forward": false, "by": "functions", "to_end": true}},
 			"classes_to_end": { "command": "move_by_scope", "args": {"forward": false, "by": "classes", "to_end": true}},
 
+			"lines": { "command": "move", "args": {"by": "lines", "forward": false} },
 			"line_insert": { "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line Before.sublime-macro"} },
 			"tabs": 	{ "command": "scroll_lines", "args": {"amount": 10.0 } },
 			"history": { "command": "soft_undo" },
@@ -290,6 +305,7 @@
 	{ "keys": ["ctrl+shift+i"], "command": "contextual_move", 
 		"args": {
 			"default": 	{ "command": "move", "args": {"by": "lines", "forward": false, "extend": true} },
+			"conditionals": { "command": "move_by_scope", "args": {"forward": false, "by": "conditionals", "expand": true, "complete": true}},
 			"functions": { "command": "move_by_scope", "args": {"forward": false, "by": "functions", "expand": true, "complete": true}},
 			"classes": { "command": "move_by_scope", "args": {"forward": false, "by": "classes", "expand": true, "complete": true}},
 
@@ -304,6 +320,7 @@
 	{ "keys": ["ctrl+alt+i"], "command": "contextual_move",
 		"args": {
 			"default": {"command": "run_macro_file", "args": {"file": "res://Packages/ContextualMove/Delete Line Before.sublime-macro"} },
+			"conditionals": { "command": "move_by_scope", "args": {"forward": false, "by": "conditionals", "complete": true, "delete": true}},
 			"functions": { "command": "move_by_scope", "args": {"forward": false, "by": "functions", "complete": true, "delete": true}},
 			"classes": { "command": "move_by_scope", "args": {"forward": false, "by": "classes", "complete": true, "delete": true}},
 
@@ -315,9 +332,11 @@
 	{ "keys": ["ctrl+shift+alt+i"], "command": "contextual_move",
 		"args": {
 			"default": { "command": "swap_line_up", },
+			"conditionals": { "command": "transpose_by_scope", "args": {"forward": false, "by": "conditionals"}},
+			"functions": { "command": "transpose_by_scope", "args": {"forward": false, "by": "functions"}},
+			"classes": { "command": "transpose_by_scope", "args": {"forward": false, "by": "classes"}},
+
 			"lines": { "command": "swap_line_up", },
-			"functions": { "command": "transpose_by", "args": {"forward": false, "by": "functions"}},
-			"classes": { "command": "transpose_by", "args": {"forward": false, "by": "classes"}},
 		}	
 	},
 
@@ -325,6 +344,7 @@
 	{ "keys": ["ctrl+k"], "command": "contextual_move", 
 		"args": {
 			"default": { "command": "move", "args": {"by": "lines", "forward": true} },
+			"conditionals": { "command": "move_by_scope", "args": {"forward": true, "by": "conditionals"}},
 			"functions": { "command": "move_by_scope", "args": {"forward": true, "by": "functions"}},
 			"classes": { "command": "move_by_scope", "args": {"forward": true, "by": "classes"}},
 
@@ -368,6 +388,7 @@
 	{ "keys": ["ctrl+shift+k"], "command": "contextual_move", 
 		"args": {
 			"default": 	{ "command": "move", "args": {"by": "lines", "forward": true, "extend": true} },
+			"conditionals": { "command": "move_by_scope", "args": {"forward": true, "by": "conditionals", "expand": true, "complete": true}},
 			"functions": { "command": "move_by_scope", "args": {"forward": true, "by": "functions", "expand": true, "complete": true}},
 			"classes": { "command": "move_by_scope", "args": {"forward": true, "by": "classes", "expand": true, "complete": true}},
 
@@ -390,6 +411,7 @@
 	{ "keys": ["ctrl+alt+k"], "command": "contextual_move",
 		"args": {
 			"default": {"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Line.sublime-macro"} },
+			"conditionals": { "command": "move_by_scope", "args": {"forward": true, "by": "conditionals", "complete": true, "delete": true}},
 			"functions": { "command": "move_by_scope", "args": {"forward": true, "by": "functions", "complete": true, "delete": true}},
 			"classes": { "command": "move_by_scope", "args": {"forward": true, "by": "classes", "complete": true, "delete": true}},
 
@@ -401,8 +423,9 @@
 	{ "keys": ["ctrl+shift+alt+k"], "command": "contextual_move",
 		"args": {
 			"default": { "command": "swap_line_down", },
-			"functions": { "command": "transpose_by", "args": {"forward": true, "by": "functions"}},
-			"classes": { "command": "transpose_by", "args": {"forward": true, "by": "classes"}},
+			"conditionals": { "command": "transpose_by_scope", "args": {"forward": true, "by": "conditionals"}},
+			"functions": { "command": "transpose_by_scope", "args": {"forward": true, "by": "functions"}},
+			"classes": { "command": "transpose_by_scope", "args": {"forward": true, "by": "classes"}},
 			"lines": { "command": "swap_line_down", },
 		}	
 	},
