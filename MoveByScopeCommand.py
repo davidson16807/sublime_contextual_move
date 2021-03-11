@@ -177,15 +177,44 @@ def transposition(traversal, view, forward, current):
 def demarcation(view, type):
     language = source(view)
     functions = {
-        'c++': lambda: CppFunctionDemarcation(view),
         'python': lambda: PythonFunctionDemarcation(view),
+        'c++': lambda: CLikeFunctionDemarcation(
+                view.size(),
+                chain(view.find_by_selector('meta.method'), view.find_by_selector('meta.function')),
+                view.find_by_selector('punctuation.section.block'),
+                chain(
+                    view.find_by_selector('meta.template'), 
+                    view.find_by_selector('punctuation.definition.comment'),
+                    view.find_by_selector('storage.type'),
+                    view.find_by_selector('storage.modifier')
+                )
+            ),
+        'js': lambda: CLikeFunctionDemarcation(
+                view.size(),
+                [beginning
+                    for beginning in chain(
+                        view.find_all(r'([\t ]*(?:\w+ *:|(?:(?:var|let|const) +)?[\w.]+ *=) *)?\bfunction\b'), 
+                        view.find_by_selector('meta.class-method'))
+                    if not is_escaped(view, beginning.a)],
+                view.find_by_selector('punctuation.section.block'),
+                view.find_by_selector('punctuation.definition.comment')
+            ),
+        'java': PredefinedRegionDemarcation(
+            order_regions(view.find_by_selector('meta.method.identifier') + view.find_by_selector('meta.class.identifier')) 
+            or list_blocks(view)),
+        'cs': PredefinedRegionDemarcation(
+            order_regions(view.find_by_selector('meta.method.identifier') + view.find_by_selector('meta.class.identifier')) 
+            or list_blocks(view)),
     }
     return {
         'subwords': lambda: SubWordDemarcation(view),
         'words': lambda: WordDemarcation(view),
         'separators': lambda: ListItemDemarcation(view),
         'conditionals': lambda: ListItemDemarcation(view),
-        'functions': lambda: functions[language]() if language in functions else PredefinedRegionDemarcation(list_defs(view) or list_blocks(view)),
+        'functions': lambda: functions[language]() if language in functions 
+            else PredefinedRegionDemarcation(
+                order_regions(view.find_by_selector('meta.class') + view.find_by_selector('meta.method.identifier')) 
+                or list_blocks(view)),
         'classes': lambda: PredefinedRegionDemarcation(list_class_defs(view) or list_blocks(view)),
     }[type]()
 
@@ -298,11 +327,30 @@ class PredefinedRegionDemarcation:
     def nextend(self, position):
         return min([region.begin() for region in self.regions if position < region.begin()] or [self.last])-1 
 
-class CppFunctionDemarcation:
-    """syntax highlighting for C++ is sufficiently complex in Sublime 
-    that it requires its own definitions for prevbegin() and nextend()"""
+class CLikeFunctionDemarcation:
+    """a category of functions mapping positions to boundaries for functions within c-like langauges,
+    effectively providing the definition for functions within these languages.
+    Starting boundaries include "predeclarations" such as comments and template constructs, 
+    which may be customized by the user."""
+    def __init__(self, view_size, declarations, braces, predeclarations):
+
+        self.declaration_beginnings = list(declaration.begin() for declaration in declarations)
+        self.brace_endings = list(brace.end() for brace in braces)
+        self.predeclaration_beginnings = list(predeclaration.begin() for predeclaration in predeclarations)
+        self.view_size = view_size
+    def nextend(self, position):
+        braces = [ending 
+            for ending in self.brace_endings
+            if position <= ending]
+        nearest_valid_beginning = min([beginning 
+            for beginning in self.declaration_beginnings
+            if position < beginning
+            and [brace for brace in braces if brace < beginning]] 
+            or [self.view_size-1])
+        return max([brace 
+            for brace in braces 
+            if brace < nearest_valid_beginning] or [position])
     def prevbegin(self, position):
-        view = self.view
         declaration = max([declaration 
             for declaration in self.declaration_beginnings
             if declaration <= position] 
@@ -314,33 +362,6 @@ class CppFunctionDemarcation:
             for predeclaration in self.predeclaration_beginnings
             if previous_brace < predeclaration and predeclaration <= position] or [declaration]) 
         return min([predeclaration, declaration])
-    def __init__(self, view):
-        self.view = view
-        self.declaration_beginnings = list(declaration.begin()
-            for declaration in chain(*[view.find_by_selector('meta.method'), view.find_by_selector('meta.function')]))
-        self.brace_endings = list(brace.end() 
-            for brace in view.find_by_selector('punctuation.section.block'))
-        self.predeclaration_beginnings = list(predeclaration.begin()
-            for predeclaration in chain(*[
-                view.find_by_selector('meta.template'), 
-                view.find_by_selector('punctuation.definition.comment'),
-                view.find_by_selector('storage.type'),
-                view.find_by_selector('storage.modifier')
-            ]))
-    def nextend(self, position):
-        view = self.view
-        braces = [ending 
-            for ending in self.brace_endings
-            if position <= ending]
-        nearest_valid_beginning = min([beginning 
-            for beginning in self.declaration_beginnings
-            if position < beginning
-            and [brace for brace in braces if brace < beginning]] 
-            or [view.size()-1])
-        return max([brace 
-            for brace in braces 
-            if brace < nearest_valid_beginning] or [position])
-
 
 class PythonFunctionDemarcation:
     def __init__(self, view):
@@ -380,42 +401,6 @@ class PythonFunctionDemarcation:
 
 
 # SECTION: FUNCTIONS THAT HELP CREATE PREDEFINED REGION TYPES (FUNCTIONS, CLASSES, ETC.)
-def list_func_defs(view):
-    lang = source(view)
-    if lang in ('cs', 'java'):
-        return view.find_by_selector('meta.method.identifier')
-    # Sublime doesn't think "function() {}" (mind no space) is a func definition.
-    # It however thinks constructor and prototype have something to do with it.
-    if lang == 'js':
-        # Functions in javascript are often declared in expression manner,
-        # we add function binding to prototype or object property as part of declaration.
-        func_def = r'([\t ]*(?:\w+ *:|(?:(?:var|let|const) +)?[\w.]+ *=) *)?\bfunction\b'
-        raw_funcs = view.find_all(func_def)
-        is_junk = lambda r: is_escaped(view, r.a)
-        funcs = lremove(is_junk, raw_funcs) 
-        return funcs + view.find_by_selector('meta.class-method')
-    return view.find_by_selector('meta.function')
-
-def list_class_defs(view):
-    lang = source(view)
-    if lang in ('cs', 'java'):
-        return view.find_by_selector('meta.class.identifier')
-    else:
-        return view.find_by_selector('meta.class')
-
-def list_defs(view):
-    funcs = list_func_defs(view)
-    if source(view) == 'js':
-        return funcs
-    classes = list_class_defs(view)
-    return order_regions(funcs + classes)
-
-
-def list_blocks(view):
-    empty_lines = view.find_all(r'^\s*\n')
-    return invert_regions(view, empty_lines)
-
-
 def list_separator_defs(view):
     selectors = [
         # 'punctuation.definition.generic.begin', 'punctuation.definition.generic.end',
@@ -445,14 +430,11 @@ def list_separator_defs(view):
     return order_regions(chain(*[view.find_by_selector(selector) for selector in selectors]))
     # return invert_regions(view, order_regions(chain(*[view.find_by_selector(selector) for selector in selectors])))
 
+def list_blocks(view):
+    empty_lines = view.find_all(r'^\s*\n')
+    return invert_regions(view, empty_lines)
 
 # SECTION: FUNCTIONS THAT HELP WORK WITH PREDEFINED REGION TYPES (FUNCTIONS, CLASSES, ETC.)
-def region_b(regions, pos):
-    return first(r for r in reversed(regions) if r.begin() <= pos)
-
-def region_f(regions, pos):
-    return first(r for r in regions if pos < r.begin())
-
 def offset_region(region, offset):
     return sublime.Region(region.a + offset, region.b + offset)
 
