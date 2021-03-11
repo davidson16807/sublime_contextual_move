@@ -281,7 +281,8 @@ def demarcation(view, type):
                 ),
                 view.find_by_selector('punctuation.section.block.end'),
                 chain(
-                    view.find_by_selector('punctuation.definition.comment')
+                    view.find_by_selector('punctuation.definition.comment'),
+                    view.find_by_selector('storage.modifier')
                 )
             ),
         'fortran': lambda: CLikeScopeDemarcation(
@@ -436,7 +437,7 @@ class CLikeScopeDemarcation:
 class PythonScopeDemarcation:
     def __init__(self, view, declarations):
         self.view = view
-        self.declaration_beginnings = declarations 
+        self.declaration_beginnings = list(declaration.begin() for declaration in declarations)
     def prevbegin(self, position):
         view = self.view
         return max([declaration 
