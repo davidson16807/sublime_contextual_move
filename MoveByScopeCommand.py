@@ -27,9 +27,9 @@ The diagram uses the following notations:
 * trivial product morphisms are indicated by dotted lines
 
 This design allows us to define a region type (e.g. word, function, class, etc.) using only two functions:
-one function expresses for any position how to get to the very next region end going down,
-and the other function expresses for any position how to get to the very next region beginning going up.
-Both functions are idempotent: feeding output back in returns the same position (as shown in the diagrams).
+one function expresses for any position how to get to the very next end of a region  going down,
+and the other function expresses for any position how to get to the very next beginning of a region going up.
+Both functions are idempotent: feeding output back as input returns the same position (as shown in the diagrams).
 Establishing this requirement allows a much cleaner implementation that avoids the introduction of off-by-one errors.
 By composing these two functions you can construct the boundaries for any region,  
 and combining these functions with character offsets ("prevchar" and "nextchar") lets you find the boundaries of adjacent regions.
@@ -41,19 +41,19 @@ This approach allows us to define both kinds of region types using a single comm
 
 
 class MoveByScopeCommand(sublime_plugin.TextCommand):
-    def run(self, edit, forward, by, expand = False, complete = False, delete = False, to_end = False):
-        demarcation_ = demarcation(self.view, by)
+    def run(self, edit, forward, by, extend = False, complete = False, delete = False, to_end = False, demarcator=''):
+        demarcation_ = demarcation(self.view, by, demarcator)
         if to_end:
             end_position = self.view.size()-1 if forward else 0
             end = sublime.Region(end_position, end_position)
             set_selection(self.view, [movement(RegionMovement(demarcation_), not forward, end)])
-        elif expand:
+        elif extend:
             set_selection(self.view, 
                 map(partial(expansion, RegionExpansion(demarcation_), forward, complete), 
                     self.view.sel()))
         elif delete:
             set_selection(self.view, 
-                map(partial(completion, demarcation_, forward), 
+                map(partial(expansion, RegionExpansion(demarcation_), forward, complete), 
                     self.view.sel()))
             self.view.run_command('left_delete')
         elif complete:
@@ -67,15 +67,15 @@ class MoveByScopeCommand(sublime_plugin.TextCommand):
     
     
 class IndentScopeCommand(sublime_plugin.TextCommand):
-    def run(self, edit, forward, by):
-        demarcation_ = demarcation(self.view, by)
+    def run(self, edit, forward, by, demarcator=''):
+        demarcation_ = demarcation(self.view, by, demarcator)
         set_replacements(self.view, edit,
             map(partial(indentation, RegionTraversal(demarcation_), self.view, forward), 
                 self.view.sel()))
 
 class TransposeByScopeCommand(sublime_plugin.TextCommand):
-    def run(self, edit, forward, by):
-        demarcation_ = demarcation(self.view, by)
+    def run(self, edit, forward, by, demarcator=''):
+        demarcation_ = demarcation(self.view, by, demarcator)
         set_replacements(self.view, edit,
             map(partial(transposition, RegionTraversal(demarcation_), self.view, forward), 
                 self.view.sel()))
@@ -172,7 +172,7 @@ def transposition(traversal, view, forward, current):
         return Replacement(source.cover(destination), bottom+middle+top, offset_region(current, offset))
 
 # SECTION: MISCELLANEOUS FUNCTIONS AND STRUCTURES THAT ARE USED TO COMPOSE COMMANDS
-def demarcation(view, type):
+def demarcation(view, type, demarcator=''):
     language = source(view)
     functions = {
         'python': lambda: PythonScopeDemarcation(view, 
@@ -295,6 +295,11 @@ def demarcation(view, type):
     return {
         'subwords': lambda: SubWordDemarcation(view),
         'words': lambda: WordDemarcation(view),
+        'empty_lines': lambda: EmptyLineDemarcation(view),
+        'tabulations': lambda: CustomDemarcation(view, r'\t'),
+        'parentheses': lambda: CustomDemarcation(view, r'[\\(\\)]'),
+        'brackets': lambda: CustomDemarcation(view, r'\\[|\\]'),
+        'braces': lambda: CustomDemarcation(view, r'[{}]'),
         'listitems': lambda: ListItemDemarcation(view),
         'conditionals': lambda: ListItemDemarcation(view),
         'functions': lambda: functions[language]() if language in functions else functions['clike'](),
@@ -317,9 +322,15 @@ class RegionExpansion:
     def __init__(self, region_demarcation):
         self.demarcation = region_demarcation
     def prev(self, region):
-        return sublime.Region( region.a, self.demarcation.prevbegin(region.b-1) )
+        a = region.a
+        b1 = region.b
+        b2 = self.demarcation.prevbegin(region.b-1)
+        return sublime.Region(a , b2) if not (b2 < a and a < b1) else sublime.Region(a, a)
     def next(self, region):
-        return sublime.Region( region.a, self.demarcation.prevbegin(self.demarcation.nextend(region.b+1)) )
+        a = region.a
+        b1 = region.b
+        b2 = self.demarcation.nextend(region.b+1)
+        return sublime.Region(a, b2) if not (b1 < a and a < b2) else sublime.Region(a, a)
 
 # SECTION: CATEGORIES THAT OPERATE ON GENERIC REGION DEMARCATIONS
 class RegionMovement:
@@ -330,9 +341,9 @@ class RegionMovement:
     def __init__(self, region_demarcation):
         self.demarcation = region_demarcation
     def prev(self, selection):
-        return self.demarcation.prevbegin(selection.begin()-1)
+        return self.demarcation.prevbegin(selection.begin()-1) if selection.size() < 1 else selection.begin()
     def next(self, selection):
-        return self.demarcation.nextend(selection.end()+1)
+        return self.demarcation.nextend(selection.end()+1) if selection.size() < 1 else selection.end()
 
 class RegionTraversal:
     """A category of functions iterating through regions.
@@ -357,21 +368,27 @@ class SubWordDemarcation:
         self.view = view
     def prevbegin(self, position):
         return self.view.find_by_class(position, False, 
-            sublime.CLASS_SUB_WORD_START | 
-            sublime.CLASS_SUB_WORD_END | 
-            sublime.CLASS_PUNCTUATION_START | 
-            sublime.CLASS_PUNCTUATION_END | 
-            sublime.CLASS_LINE_END | 
-            sublime.CLASS_EMPTY_LINE
-    )
+            sublime.CLASS_SUB_WORD_START  
+            | sublime.CLASS_SUB_WORD_END 
+            | sublime.CLASS_WORD_START  
+            | sublime.CLASS_WORD_END  
+            | sublime.CLASS_PUNCTUATION_START  
+            | sublime.CLASS_PUNCTUATION_END  
+            | sublime.CLASS_LINE_START  
+            | sublime.CLASS_LINE_END  
+            | sublime.CLASS_EMPTY_LINE
+        )
     def nextend(self, position):
         return self.view.find_by_class(position, True, 
-            sublime.CLASS_SUB_WORD_START | 
-            sublime.CLASS_SUB_WORD_END | 
-            sublime.CLASS_PUNCTUATION_START | 
-            sublime.CLASS_PUNCTUATION_END | 
-            sublime.CLASS_LINE_END | 
-            sublime.CLASS_EMPTY_LINE
+            sublime.CLASS_SUB_WORD_START  
+            | sublime.CLASS_SUB_WORD_END  
+            | sublime.CLASS_WORD_START  
+            | sublime.CLASS_WORD_END  
+            | sublime.CLASS_PUNCTUATION_START  
+            | sublime.CLASS_PUNCTUATION_END  
+            | sublime.CLASS_LINE_START  
+            | sublime.CLASS_LINE_END  
+            | sublime.CLASS_EMPTY_LINE
         )
 
 class WordDemarcation:
@@ -381,22 +398,65 @@ class WordDemarcation:
         self.view = view
     def prevbegin(self, position):
         return self.view.find_by_class(position, False, 
-            sublime.CLASS_WORD_START #| 
-            # sublime.CLASS_WORD_END | 
-            # sublime.CLASS_PUNCTUATION_START | 
-            # sublime.CLASS_PUNCTUATION_END | 
-            # sublime.CLASS_LINE_END | 
-            # sublime.CLASS_EMPTY_LINE
+            sublime.CLASS_WORD_START
+            | sublime.CLASS_WORD_END 
+            | sublime.CLASS_PUNCTUATION_START 
+            | sublime.CLASS_PUNCTUATION_END 
+            # | sublime.CLASS_EMPTY_LINE
+            # | sublime.CLASS_LINE_START
+            # | sublime.CLASS_LINE_END
         )
     def nextend(self, position):
         return self.view.find_by_class(position, True, 
-            # sublime.CLASS_WORD_START | 
-            sublime.CLASS_WORD_END #| 
-            # sublime.CLASS_PUNCTUATION_START | 
-            # sublime.CLASS_PUNCTUATION_END | 
-            # sublime.CLASS_LINE_END | 
-            # sublime.CLASS_EMPTY_LINE
+            sublime.CLASS_WORD_START
+            | sublime.CLASS_WORD_END
+            | sublime.CLASS_PUNCTUATION_START 
+            | sublime.CLASS_PUNCTUATION_END 
+            # | sublime.CLASS_EMPTY_LINE
+            # | sublime.CLASS_LINE_START
+            # | sublime.CLASS_LINE_END
         )
+
+class EmptyLineDemarcation:
+    """a category of functions mapping positions to region boundaries,
+    effectively providing the definition of a region"""
+    def __init__(self, view):
+        self.view = view
+    def prevbegin(self, position):
+        return self.view.find_by_class(position, False, 
+            sublime.CLASS_EMPTY_LINE
+            # | sublime.CLASS_LINE_START
+            # | sublime.CLASS_LINE_END
+        )
+    def nextend(self, position):
+        return self.view.find_by_class(position, True, 
+            sublime.CLASS_EMPTY_LINE
+            # | sublime.CLASS_LINE_START
+            # | sublime.CLASS_LINE_END
+        )
+
+class CustomDemarcation:
+    """a category of functions mapping positions to region boundaries,
+    effectively providing the definition of a region"""
+    def __init__(self, view, demarcator):
+        self.view = view
+        self.demarcator = demarcator
+    def prevbegin(self, position):
+        return max([delimiter.end()
+            for delimiter in self.view.find_all(self.demarcator)
+            if delimiter.end() <= position
+            # NOTE: the line below can be used to match complex list items with parens and bracks, 
+            # but results do not feel very predictable to the user
+            # and braces_match(self.view.substr(sublime.Region(position, delimiter.begin())))
+        ] or [position])
+    def nextend(self, position):
+        return min([delimiter.begin()
+            for delimiter in self.view.find_all(self.demarcator)
+            if position <= delimiter.begin()
+            # NOTE: the line below can be used to match complex list items with parens and bracks, 
+            # but results do not feel very predictable to the user
+            # and braces_match(self.view.substr(sublime.Region(position, delimiter.begin())))
+        ] or [position])
 
 class ListItemDemarcation:
     """a category of functions mapping positions to region boundaries,
