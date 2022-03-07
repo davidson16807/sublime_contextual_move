@@ -4,15 +4,16 @@ import sublime, sublime_plugin, re
 class ExpandSheetSelectionCommand(sublime_plugin.WindowCommand):
     def run(self, forward=True):
         offset = 1 if forward else -1
-        sheet = self.window.active_sheet()
-        sheets = self.window.sheets()
-        print()
-        print(sheets.index(sheet))
-        print(len(sheets))
-        next_sheet_id = (sheets.index(sheet) + offset) % len(sheets)
-        print(next_sheet_id)
-        next_sheet = sheets[next_sheet_id]
-        selection = self.window.selected_sheets()
-        selection.append(next_sheet)
-        self.window.select_sheets(selection)
-        self.window.focus_sheet(next_sheet)
+        active_sheet = self.window.active_sheet()
+        all_sheets = self.window.sheets()
+        new_sheet_id = (all_sheets.index(active_sheet) + offset) % len(all_sheets)
+        new_sheet = all_sheets[new_sheet_id]
+        selected_sheets = self.window.selected_sheets()
+        if new_sheet not in selected_sheets:
+            selected_sheets.append(new_sheet)
+            self.window.select_sheets(selected_sheets)
+            self.window.focus_sheet(new_sheet)
+        else:
+            selected_sheets.remove(active_sheet)
+            self.window.select_sheets(selected_sheets)
+            self.window.focus_sheet(new_sheet)
