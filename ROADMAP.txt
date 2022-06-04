@@ -1,0 +1,11 @@
+C;CA↑ goes down instead of up
+A🕂 moves cursor without changing selection
+CA↔ does not work on windows
+CfC↕ searches according to settings in finder window
+CfCS↕ expands selection to next search result, both forward
+CS( must be equivalent to C(
+C;CSA↕ does not work on windows, should move text all the way down
+C;CA↔ doesn't work on windows, should delete to end of line
+C[enter]C↔ should indent all lines between nearest blank lines
+
+think about switching to polymorphic representation of modes
