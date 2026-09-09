@@ -1,3 +1,1 @@
 A🕂 moves cursor without changing selection
-CfC↕ searches according to settings in finder window
-CfCS↕ expands selection to next search result, both forward and back

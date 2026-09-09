@@ -403,7 +403,7 @@
 	{ "keys": ["ctrl+i"],    
 		"command": "contextual_move", 
 		"args": {
-			"default": { "command": "find_prev" },
+			"default": { "command": "contextual_find", "args": {"forward": false} },
 			"default_to_end": { "command": "find_to_end", "args": {"forward": false} },
 		},
 		"context":
@@ -438,7 +438,7 @@
 			"lines": 	{ "command": "move", "args": {"by": "wholelines", "forward": false} },
 		},
 	},
-	{ "keys": ["ctrl+shift+i"], "command": "find_next_expand",
+	{ "keys": ["ctrl+shift+i"], "command": "contextual_find", "args": {"forward": false, "extend":true},
 		"context":
 		[
 			{ "key": "panel", "operand": "find" },
@@ -501,7 +501,7 @@
 	{ "keys": ["ctrl+k"],    
 		"command": "contextual_move", 
 		"args": {
-			"default": { "command": "find_next" },
+			"default": { "command": "contextual_find", "args": {"forward": true} },
 			"default_to_end": { "command": "find_to_end", "args": {"forward": true} },
 		},
 		"context":
@@ -536,7 +536,7 @@
 			"lines": 	{ "command": "move", "args": {"by": "wholelines", "forward": true} },
 		},
 	},
-	{ "keys": ["ctrl+shift+k"], "command": "find_next_expand",
+	{ "keys": ["ctrl+shift+k"], "command": "contextual_find", "args": {"forward": true, "extend":true},
 		"context":
 		[
 			{ "key": "panel", "operand": "find" },
