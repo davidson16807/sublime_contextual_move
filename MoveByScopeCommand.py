@@ -98,7 +98,7 @@ def add_selection(view, regions):
         else:
             # .add_all() doesn't work with python lists in ST2
             for region in regions:
-                view.sel().add(r)
+                view.sel().add(region)
     else:
         view.sel().add(regions)
 
