@@ -1,4 +1,0 @@
-[
-	{ "command": "move_to", "args": {"to": "eof", "extend": true} },
-    { "command": "left_delete" },
-]
